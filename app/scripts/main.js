@@ -1,4 +1,6 @@
 'use strict';
+import window from './util/window';
+
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
@@ -28,4 +30,4 @@ render((
       </Route>
     </Router>
   </Provider>
-), document.getElementById('site-canvas'));
+), window.document.getElementById('site-canvas'));
