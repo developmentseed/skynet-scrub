@@ -1,0 +1,93 @@
+{
+  "name": "skynet-scrub",
+  "version": "1.0.0",
+  "description": "A GUI for cleaning ML output",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/developmentseed/skynet-scrub"
+  },
+  "author": {
+    "name": "Development Seed",
+    "url": "https://developmentseed.org"
+  },
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/developmentseed/skynet-scrub/issues"
+  },
+  "homepage": "https://github.com/developmentseed/skynet-scrub",
+  "scripts": {
+    "serve": "DS_ENV=development gulp serve",
+    "build": "NODE_ENV=production gulp",
+    "lint": "./node_modules/.bin/eslint app/scripts/ test/ --ext .js",
+    "start": "npm run serve",
+    "test": "npm run lint; ./node_modules/.bin/tape -r babel-register -r babel-polyfill test/**/*.js"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "react"
+          ]
+        }
+      ],
+      "require-globify",
+      "envify"
+    ]
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-register": "^6.23.0",
+    "babelify": "^7.3.0",
+    "browser-sync": "^2.12.5",
+    "browserify": "^13.0.1",
+    "del": "^2.2.0",
+    "envify": "^3.4.0",
+    "eslint": "^2.9.0",
+    "eslint-config-standard": "^5.3.1",
+    "eslint-plugin-promise": "^1.1.0",
+    "eslint-plugin-react": "^6.9.0",
+    "eslint-plugin-standard": "^1.3.2",
+    "gulp": "^3.9.1",
+    "gulp-cache": "^0.4.4",
+    "gulp-csso": "^2.0.0",
+    "gulp-exit": "0.0.2",
+    "gulp-if": "^2.0.1",
+    "gulp-imagemin": "^3.0.1",
+    "gulp-load-plugins": "^1.2.2",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rev": "^7.0.0",
+    "gulp-rev-replace": "^0.4.3",
+    "gulp-sass": "^2.3.1",
+    "gulp-size": "^2.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-useref": "^3.1.0",
+    "gulp-util": "^3.0.7",
+    "node-bourbon": "^4.2.8",
+    "node-notifier": "^4.5.0",
+    "node-sass": "^3.7.0",
+    "require-globify": "^1.3.0",
+    "tape": "^4.6.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "jsdom": "^9.11.0",
+    "mock-browser": "^0.92.12",
+    "object-path": "^0.11.3",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "react-router": "^3.0.2",
+    "react-router-scroll": "^0.4.1",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.2.0"
+  }
+}
