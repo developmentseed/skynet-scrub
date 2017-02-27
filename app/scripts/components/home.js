@@ -7,7 +7,7 @@ var Home = React.createClass({
   displayName: 'Home',
 
   render: function () {
-    return ( <Map />);
+    return (<Map />);
   }
 });
 export default connect(state => state)(Home);
