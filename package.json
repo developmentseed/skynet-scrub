@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "jsdom": "^9.11.0",
+    "mapbox-gl": "^0.32.1",
     "mock-browser": "^0.92.12",
     "object-path": "^0.11.3",
     "react": "^15.4.2",
