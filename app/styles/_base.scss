@@ -16,3 +16,27 @@
     }
   }
 }
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.main, .app {
+  height: inherit;
+}
+
+.header, .footer {
+  position: absolute;
+}
+
+.header {
+  top: 0;
+  height: 1em;
+}
+
+.footer {
+  bottom: 0;
+  height: 1em;
+}

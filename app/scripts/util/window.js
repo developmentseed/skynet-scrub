@@ -8,4 +8,6 @@ if (isNode) {
   global.document = _.document;
   global.navigator = _.navigator;
 }
+export const mapboxgl = !isNode ? _.mapboxgl : () => true;
+export const MapboxDraw = !isNode ? _.MapboxDraw : () => true;
 export default _;

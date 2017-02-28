@@ -14,6 +14,9 @@
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v0.16.0/mapbox-gl-draw.css" type="text/css"/>
     <link rel="author" type="text/plain" href="humans.txt" />
   </head>
   <body>
@@ -24,8 +27,10 @@
       </div>
     <![endif]-->
 
-    <div id="site-canvas">
-    </div>
+    <div id="site-canvas" class="main"></div>
+
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js"></script>
+    <script src="bin/mapbox-gl-draw.js"></script>
 
     <!-- build:js scripts/vendor.js -->
     <script src="scripts/vendor.js"></script>
