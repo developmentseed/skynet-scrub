@@ -1,0 +1,18 @@
+// IE < 10
+// Don't delete.
+.lt-ie10 {
+  #site-canvas {
+    display: none;
+  }
+  #nocando {
+    margin: 200px auto;
+    padding: 32px;
+    max-width: 440px;
+    background: #fff;
+    h1 {
+      font-size: 24px;
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+  }
+}
