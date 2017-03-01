@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 import drawStyles from './styles/mapbox-draw-styles';
+import { addChange } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -13,8 +14,6 @@ const noGl = (
 );
 const id = 'main-map-component';
 const Map = React.createClass({
-  displayName: 'Map',
-
   initMap: function (el) {
     if (el && !this.map && glSupport) {
       mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
@@ -25,13 +24,22 @@ const Map = React.createClass({
         style: 'mapbox://styles/mapbox/satellite-v9',
         zoom: 11
       });
-
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
         controls: { trash: true }
       });
       this.map.addControl(draw);
+      window.Draw = draw;
+      this.map.on('draw.create', (e) => {
+        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: null })))); // it was not here
+      });
+      this.map.on('draw.delete', (e) => {
+        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: f })))); // it was here
+      });
+      this.map.on('draw.update', (e) => {
+        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: f })))); // it was different
+      });
     }
   },
 
@@ -40,7 +48,18 @@ const Map = React.createClass({
     return (
       <div className='map__container' ref={this.initMap} id={id}></div>
     );
+  },
+
+  propTypes: {
+    dispatch: React.PropTypes.func,
+    changed: React.PropTypes.array
   }
 });
 
-export default connect(state => state)(Map);
+function mapStateToProps (state) {
+  return {
+    changed: state.changed.present
+  };
+}
+
+export default connect(mapStateToProps)(Map);

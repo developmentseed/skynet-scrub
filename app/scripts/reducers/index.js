@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux';
+import changed from './changed';
 
 export const reducers = {
-  def: (state = {}, action) => state
+  changed
 };
 
 export default combineReducers(Object.assign({}, reducers));
