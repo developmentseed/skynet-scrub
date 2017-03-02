@@ -80,6 +80,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
     "hat": "0.0.3",
     "jsdom": "^9.11.0",
     "mapbox-gl-supported": "^1.2.0",

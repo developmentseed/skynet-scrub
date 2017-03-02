@@ -2,9 +2,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
+import c from 'classnames';
 import { mapboxgl, MapboxDraw } from '../../util/window';
+
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, completeUndo, completeRedo } from '../../actions';
+import { updateSelection, undo, redo, completeUndo, completeRedo } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -79,10 +81,22 @@ const Map = React.createClass({
     }
   },
 
+  undo: function () {
+    this.props.dispatch(undo());
+  },
+
+  redo: function () {
+    this.props.dispatch(redo());
+  },
+
   render: function () {
+    const { past, future } = this.props.selection;
     if (!glSupport) { return noGl; }
     return (
-      <div className='map__container' ref={this.initMap} id={id}></div>
+        <div className='map__container' ref={this.initMap} id={id}>
+        <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
+        <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
+        </div>
     );
   },
 
