@@ -1,5 +1,5 @@
 import hat from 'hat';
-import { UNDO, REDO, UPDATE_SELECTION } from '../actions';
+import { UNDO, REDO, COMPLETE_UNDO, COMPLETE_REDO, UPDATE_SELECTION } from '../actions';
 
 const initial = {
   past: [],
@@ -17,15 +17,15 @@ const selection = (state = initial, action) => {
       const newPast = past.slice(0, past.length - 1);
       return {
         past: newPast,
-        present: previous,
-        future: [ present, ...future ]
+        present: { selection: previous.selection, historyId: 'undo' },
+        future
       };
     case REDO:
       const next = future[0];
       const newFuture = future.slice(1);
       return {
-        past: [ ...past, present ],
-        present: next,
+        past,
+        present: { selection: next.selection, historyId: 'redo' },
         future: newFuture
       };
     case UPDATE_SELECTION:
@@ -33,6 +33,18 @@ const selection = (state = initial, action) => {
         past: [ ...past, { historyId: present.historyId, selection: action.data } ],
         present: { historyId: rack(), selection: [] },
         future: []
+      };
+    case COMPLETE_UNDO:
+      return {
+        past,
+        present: { historyId: rack(), selection: [] },
+        future: [ present, ...future ]
+      };
+    case COMPLETE_REDO:
+      return {
+        past: [ ...past, present ],
+        present: { historyId: rack(), selection: [] },
+        future
       };
     default:
       return state;
