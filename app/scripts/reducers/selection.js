@@ -1,5 +1,5 @@
 import hat from 'hat';
-import { UNDO, REDO, UPDATE_SELECTION_HISTORY, UPDATE_SELECTION } from '../actions';
+import { UNDO, REDO, UPDATE_SELECTION } from '../actions';
 
 const initial = {
   past: [],
@@ -29,18 +29,10 @@ const selection = (state = initial, action) => {
         future: newFuture
       };
     case UPDATE_SELECTION:
-      // this doesn't update history
       return {
-        past,
-        present: { historyId: state.present.historyId, selection: action.data },
-        future
-      };
-    case UPDATE_SELECTION_HISTORY:
-      // this exclusively updates history (and clears present)
-      return {
-        past: [ ...past, present ],
+        past: [ ...past, { historyId: present.historyId, selection: action.data } ],
         present: { historyId: rack(), selection: [] },
-        future: []
+        future
       };
     default:
       return state;

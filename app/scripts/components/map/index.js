@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, updateSelectionHistory } from '../../actions';
+import { updateSelection } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -31,24 +31,28 @@ const Map = React.createClass({
       });
       this.map.addControl(draw);
       window.Draw = draw;
-      this.map.on('draw.create', () => {
-        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
+      this.map.on('draw.create', (e) => {
+        this.props.dispatch(updateSelection(e.features.map(f => ({ id: f.id, geometry: null }))));
       });
-      this.map.on('draw.delete', () => {
-        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
+      this.map.on('draw.delete', (e) => {
+        this.props.dispatch(updateSelection(e.features));
       });
-      this.map.on('draw.update', () => {
-        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
+      this.map.on('draw.update', (e) => {
+        this.props.dispatch(updateSelection(this.selection));
+        this.selection = draw.getSelected().features;
       });
       this.map.on('draw.selectionchange', (e) => {
-        this.props.dispatch(updateSelection(e.features));
+        if (e.features.length) {
+          // internal state used to track "previous state" of edited geometry
+          this.selection = e.features;
+        }
       });
     }
   },
 
-  // componentWillReceiveProps: function (nextProps) {
-  //   nextProps.selection.
-  // },
+  componentWillReceiveProps: function (nextProps) {
+    console.log(nextProps.selection.present.selection);
+  },
 
   render: function () {
     if (!glSupport) { return noGl; }
@@ -59,13 +63,13 @@ const Map = React.createClass({
 
   propTypes: {
     dispatch: React.PropTypes.func,
-    selection: React.PropTypes.array
+    selection: React.PropTypes.object
   }
 });
 
 function mapStateToProps (state) {
   return {
-    selection: state.selection.present
+    selection: state.selection
   };
 }
 
