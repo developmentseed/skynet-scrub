@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection } from '../../actions';
+import { updateSelection, completeUndo, completeRedo } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -33,13 +33,19 @@ const Map = React.createClass({
       this.draw = draw;
       window.Draw = draw;
       this.map.on('draw.create', (e) => {
-        this.props.dispatch(updateSelection(e.features.map(f => ({ id: f.id, geometry: null }))));
+        this.props.dispatch(updateSelection(e.features.map(f => {
+          return { id: f.id, undo: null, redo: f };
+        })));
       });
       this.map.on('draw.delete', (e) => {
-        this.props.dispatch(updateSelection(e.features));
+        this.props.dispatch(updateSelection(e.features.map(f => {
+          return { id: f.id, undo: f, redo: null };
+        })));
       });
       this.map.on('draw.update', (e) => {
-        this.props.dispatch(updateSelection(this.selection));
+        this.props.dispatch(updateSelection(e.features.map(f => {
+          return { id: f.id, undo: this.selection.find(f.id), redo: f };
+        })));
         this.selection = draw.getSelected().features;
       });
       this.map.on('draw.selectionchange', (e) => {
@@ -53,16 +59,22 @@ const Map = React.createClass({
 
   componentWillReceiveProps: function (nextProps) {
     // if we have a selection, update our map accordingly
-    if (nextProps.selection.present.selection.length) {
-      nextProps.selection.present.selection.forEach(f => {
-        // if we have a geo, replace/add
-        if (f.geometry) {
-          this.draw.add(f);
-        } else {
-          // otherwise delete
-          this.draw.delete(f.id);
-        }
+    const { selection, historyId } = nextProps.selection.present;
+    if (selection.length) {
+      selection.forEach(f => {
+        this.featureUpdate(f, historyId);
       });
+      this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
+    }
+  },
+
+  featureUpdate: function (feature, undoOrRedoKey) {
+    // if we have a geo, replace/add
+    if (feature[undoOrRedoKey]) {
+      this.draw.add(feature[undoOrRedoKey]);
+    } else {
+      // otherwise delete
+      this.draw.delete(feature.id);
     }
   },
 
