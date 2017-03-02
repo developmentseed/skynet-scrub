@@ -32,7 +32,7 @@ const selection = (state = initial, action) => {
       return {
         past: [ ...past, { historyId: present.historyId, selection: action.data } ],
         present: { historyId: rack(), selection: [] },
-        future
+        future: []
       };
     default:
       return state;

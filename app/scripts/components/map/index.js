@@ -30,6 +30,7 @@ const Map = React.createClass({
         controls: { trash: true, line_string: true }
       });
       this.map.addControl(draw);
+      this.draw = draw;
       window.Draw = draw;
       this.map.on('draw.create', (e) => {
         this.props.dispatch(updateSelection(e.features.map(f => ({ id: f.id, geometry: null }))));
@@ -51,7 +52,18 @@ const Map = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    console.log(nextProps.selection.present.selection);
+    // if we have a selection, update our map accordingly
+    if (nextProps.selection.present.selection.length) {
+      nextProps.selection.present.selection.forEach(f => {
+        // if we have a geo, replace/add
+        if (f.geometry) {
+          this.draw.add(f);
+        } else {
+          // otherwise delete
+          this.draw.delete(f.id);
+        }
+      });
+    }
   },
 
   render: function () {
