@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 import drawStyles from './styles/mapbox-draw-styles';
-import { addChange } from '../../actions';
+import { updateSelection, updateSelectionHistory } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -27,21 +27,28 @@ const Map = React.createClass({
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
-        controls: { trash: true }
+        controls: { trash: true, line_string: true }
       });
       this.map.addControl(draw);
       window.Draw = draw;
-      this.map.on('draw.create', (e) => {
-        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: null })))); // it was not here
+      this.map.on('draw.create', () => {
+        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
       });
-      this.map.on('draw.delete', (e) => {
-        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: f })))); // it was here
+      this.map.on('draw.delete', () => {
+        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
       });
-      this.map.on('draw.update', (e) => {
-        this.props.dispatch(addChange(e.features.map(f => ({ id: f.id, geo: f })))); // it was different
+      this.map.on('draw.update', () => {
+        setTimeout(() => this.props.dispatch(updateSelectionHistory()), 20);
+      });
+      this.map.on('draw.selectionchange', (e) => {
+        this.props.dispatch(updateSelection(e.features));
       });
     }
   },
+
+  // componentWillReceiveProps: function (nextProps) {
+  //   nextProps.selection.
+  // },
 
   render: function () {
     if (!glSupport) { return noGl; }
@@ -52,13 +59,13 @@ const Map = React.createClass({
 
   propTypes: {
     dispatch: React.PropTypes.func,
-    changed: React.PropTypes.array
+    selection: React.PropTypes.array
   }
 });
 
 function mapStateToProps (state) {
   return {
-    changed: state.changed.present
+    selection: state.selection.present
   };
 }
 

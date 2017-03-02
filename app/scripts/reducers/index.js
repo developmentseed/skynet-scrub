@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import changed from './changed';
+import selection from './selection';
 
 export const reducers = {
-  changed
+  selection
 };
 
 export default combineReducers(Object.assign({}, reducers));
