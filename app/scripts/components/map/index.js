@@ -44,7 +44,8 @@ const Map = React.createClass({
       });
       this.map.on('draw.update', (e) => {
         this.props.dispatch(updateSelection(e.features.map(f => {
-          return { id: f.id, undo: this.selection.find(f.id), redo: f };
+          const oldFeature = this.selection.find(a => a.id === f.id);
+          return { id: f.id, undo: oldFeature, redo: f };
         })));
         this.selection = draw.getSelected().features;
       });
