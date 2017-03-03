@@ -9,7 +9,8 @@ import { mapboxgl, MapboxDraw } from '../../util/window';
 
 import { MAP_STATUS } from '../../reducers/map';
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData } from '../../actions';
+import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
+  completeMapUpdate } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -90,6 +91,7 @@ const Map = React.createClass({
           this.draw.add(Object.assign({}, value, { id: key }));
         }
       });
+      this.props.dispatch(completeMapUpdate());
     }
   },
 
