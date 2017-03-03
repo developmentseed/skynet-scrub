@@ -15,7 +15,16 @@ const map = (state = initial, action) => {
     case COMPLETE_MAP_UPDATE:
       return { store: state.store, status: MAP_STATUS.CLEAN };
     case UPDATE_MAP_DATA:
-      return { store: action.data, status: MAP_STATUS.DIRTY };
+      const newStore = new Map(state.store);
+      // for all of the new data, add it to the store only if it wasn't there
+      // before; don't overwrite
+      console.log(action.data);
+      action.data.forEach(f => {
+        if (!newStore.has(f.id)) {
+          newStore.set(f.id, f.object);
+        }
+      });
+      return { store: newStore, status: MAP_STATUS.DIRTY };
     default:
       return state;
   }

@@ -82,6 +82,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "hat": "0.0.3",
+    "isomorphic-fetch": "^2.2.1",
     "jsdom": "^9.11.0",
     "mapbox-gl-supported": "^1.2.0",
     "mock-browser": "^0.92.12",
