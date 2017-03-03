@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux';
+import selection from './selection';
 
 export const reducers = {
-  def: (state = {}, action) => state
+  selection
 };
 
 export default combineReducers(Object.assign({}, reducers));
