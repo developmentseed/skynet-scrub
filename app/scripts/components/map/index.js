@@ -7,6 +7,7 @@ import bboxPolygon from 'turf-bbox-polygon';
 import { tiles } from 'tile-cover';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 
+import config from '../../config';
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo } from '../../actions';
 
@@ -61,7 +62,9 @@ const Map = React.createClass({
       });
       this.map.on('moveend', (e) => {
         const coverTile = this.getCoverTile(e.target.getBounds().toArray(), e.target.getZoom());
-        console.log(coverTile);
+        fetch(`${config.baseUrl}/features/${coverTile[2]}/${coverTile[0]}/${coverTile[1]}`)
+          .then(response => response.json())
+          .then(response => console.log(response));
       });
     }
   },
