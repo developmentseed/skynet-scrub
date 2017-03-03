@@ -1,6 +1,6 @@
 import { COMPLETE_MAP_UPDATE, UPDATE_MAP_DATA } from '../actions';
 
-const MAP_STATUS = {
+export const MAP_STATUS = {
   CLEAN: 'clean',
   DIRTY: 'dirty'
 };
@@ -18,7 +18,6 @@ const map = (state = initial, action) => {
       const newStore = new Map(state.store);
       // for all of the new data, add it to the store only if it wasn't there
       // before; don't overwrite
-      console.log(action.data);
       action.data.forEach(f => {
         if (!newStore.has(f.id)) {
           newStore.set(f.id, f.object);

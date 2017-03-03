@@ -7,6 +7,7 @@ import bboxPolygon from 'turf-bbox-polygon';
 import { tiles } from 'tile-cover';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 
+import { MAP_STATUS } from '../../reducers/map';
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData } from '../../actions';
 
@@ -79,6 +80,17 @@ const Map = React.createClass({
       });
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
     }
+
+    // if we have a dirty store, update the Draw.store with it then mark it as
+    // clean
+    if (nextProps.map.status === MAP_STATUS.DIRTY) {
+      nextProps.map.store.forEach((value, key) => {
+        // like our internal store, only add, no deletes or updates
+        if (!this.draw.get(key)) {
+          this.draw.add(Object.assign({}, value, { id: key }));
+        }
+      });
+    }
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
@@ -124,13 +136,15 @@ const Map = React.createClass({
 
   propTypes: {
     dispatch: React.PropTypes.func,
-    selection: React.PropTypes.object
+    selection: React.PropTypes.object,
+    map: React.PropTypes.object
   }
 });
 
 function mapStateToProps (state) {
   return {
-    selection: state.selection
+    selection: state.selection,
+    map: state.map
   };
 }
 
