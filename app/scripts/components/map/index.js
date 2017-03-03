@@ -62,12 +62,10 @@ const Map = React.createClass({
         }
       });
       this.map.on('load', (e) => {
-        const coverTile = this.getCoverTile(e.target.getBounds().toArray(), e.target.getZoom());
-        this.props.dispatch(fetchMapData(coverTile));
+        this.loadMapData(e);
       });
       this.map.on('moveend', (e) => {
-        const coverTile = this.getCoverTile(e.target.getBounds().toArray(), e.target.getZoom());
-        this.props.dispatch(fetchMapData(coverTile));
+        this.loadMapData(e);
       });
     }
   },
@@ -123,6 +121,14 @@ const Map = React.createClass({
     return (cover.length === 1)
     ? cover[0]
     : this.getCoverTile(bounds, zoom - 1);
+  },
+
+  loadMapData: function (mapEvent) {
+    const coverTile = this.getCoverTile(
+      mapEvent.target.getBounds().toArray(),
+      Math.floor(mapEvent.target.getZoom())
+    );
+    this.props.dispatch(fetchMapData(coverTile));
   },
 
   render: function () {
