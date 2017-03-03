@@ -3,6 +3,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import c from 'classnames';
+import bboxPolygon from 'turf-bbox-polygon';
+import { tiles } from 'tile-cover';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 
 import drawStyles from './styles/mapbox-draw-styles';
@@ -57,6 +59,10 @@ const Map = React.createClass({
           this.selection = e.features;
         }
       });
+      this.map.on('moveend', (e) => {
+        const coverTile = this.getCoverTile(e.target.getBounds().toArray(), e.target.getZoom());
+        console.log(coverTile);
+      });
     }
   },
 
@@ -87,6 +93,18 @@ const Map = React.createClass({
 
   redo: function () {
     this.props.dispatch(redo());
+  },
+
+  getCoverTile: function (bounds, zoom) {
+    const limits = { min_zoom: zoom, max_zoom: zoom };
+    const feature = bboxPolygon(bounds[0].concat(bounds[1]));
+    const cover = tiles(feature.geometry, limits);
+
+    // if we have one tile to cover the area, return it, otherwise try at one
+    // zoom level up
+    return (cover.length === 1)
+    ? cover[0]
+    : this.getCoverTile(bounds, zoom - 1);
   },
 
   render: function () {
