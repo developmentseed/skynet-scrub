@@ -7,7 +7,6 @@ import bboxPolygon from 'turf-bbox-polygon';
 import { tiles } from 'tile-cover';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 
-import { MAP_STATUS } from '../../reducers/map';
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
   completeMapUpdate } from '../../actions';
@@ -80,13 +79,12 @@ const Map = React.createClass({
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
     }
 
-    // if we have a dirty store, update the Draw.store with it then mark it as
-    // clean
-    if (nextProps.map.status === MAP_STATUS.DIRTY) {
-      nextProps.map.store.forEach((value, key) => {
-        // like our internal store, only add, no deletes or updates
-        if (!this.draw.get(key)) {
-          this.draw.add(Object.assign({}, value, { id: key }));
+    // if we have a tempStore, update the Draw.store with it then clear
+    if (nextProps.map.tempStore) {
+      nextProps.map.tempStore.forEach(feature => {
+        // only add, no deletes or updates
+        if (!this.draw.get(feature.id)) {
+          this.draw.add(Object.assign({}, feature.object, { id: feature.id }));
         }
       });
       this.props.dispatch(completeMapUpdate());
