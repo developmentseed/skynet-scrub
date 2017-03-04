@@ -126,7 +126,10 @@ const Map = React.createClass({
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
     );
-    this.props.dispatch(fetchMapData(coverTile));
+    // only fetch new data if we haven't requested this tile before
+    if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
+      this.props.dispatch(fetchMapData(coverTile));
+    }
   },
 
   render: function () {
