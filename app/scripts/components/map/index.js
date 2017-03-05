@@ -32,7 +32,8 @@ const Map = React.createClass({
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
-        controls: { trash: true, line_string: true }
+        controls: { trash: true, line_string: true },
+        userProperties: true
       });
       this.map.addControl(draw);
       this.draw = draw;
@@ -84,6 +85,7 @@ const Map = React.createClass({
       nextProps.map.tempStore.forEach(feature => {
         // only add, no deletes or updates
         if (!this.draw.get(feature.id)) {
+          feature.object.properties.status = Math.floor(Math.random() * 2);
           this.draw.add(Object.assign({}, feature.object, { id: feature.id }));
         }
       });

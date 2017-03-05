@@ -28,6 +28,34 @@ const styles = [
       'line-width': 3
     }
   },
+  // line stroke, status 1
+  {
+    'id': 'gl-draw-line-inactive-status-1',
+    'type': 'line',
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 1]],
+    'layout': {
+      'line-cap': 'round',
+      'line-join': 'round'
+    },
+    'paint': {
+      'line-color': '#0000ff',
+      'line-width': 4
+    }
+  },
+  {
+    'id': 'gl-draw-line-active-status-1',
+    'type': 'line',
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 1]],
+    'layout': {
+      'line-cap': 'round',
+      'line-join': 'round'
+    },
+    'paint': {
+      'line-color': '#0000ff',
+      'line-dasharray': [0.2, 2],
+      'line-width': 3
+    }
+  },
   // vertex point halos
   {
     'id': 'gl-draw-polygon-and-line-vertex-halo-simple-inactive',
