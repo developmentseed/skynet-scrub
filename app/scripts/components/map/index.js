@@ -39,6 +39,7 @@ const Map = React.createClass({
       this.draw = draw;
       window.Draw = draw;
       this.map.on('draw.create', (e) => {
+        e.features.forEach(this.markAsEdited);
         this.props.dispatch(updateSelection(e.features.map(f => {
           return { id: f.id, undo: null, redo: f };
         })));
@@ -49,6 +50,7 @@ const Map = React.createClass({
         })));
       });
       this.map.on('draw.update', (e) => {
+        e.features.forEach(this.markAsEdited);
         this.props.dispatch(updateSelection(e.features.map(f => {
           const oldFeature = this.selection.find(a => a.id === f.id);
           return { id: f.id, undo: oldFeature, redo: f };
@@ -85,7 +87,6 @@ const Map = React.createClass({
       nextProps.map.tempStore.forEach(feature => {
         // only add, no deletes or updates
         if (!this.draw.get(feature.id)) {
-          feature.object.properties.status = Math.floor(Math.random() * 2);
           this.draw.add(Object.assign({}, feature.object, { id: feature.id }));
         }
       });
@@ -132,6 +133,11 @@ const Map = React.createClass({
     if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
       this.props.dispatch(fetchMapData(coverTile));
     }
+  },
+
+  markAsEdited: function (feature) {
+    feature.properties.status = 'edited';
+    this.draw.add(feature);
   },
 
   render: function () {

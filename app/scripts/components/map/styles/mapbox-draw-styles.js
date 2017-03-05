@@ -30,9 +30,9 @@ const styles = [
   },
   // line stroke, status 1
   {
-    'id': 'gl-draw-line-inactive-status-1',
+    'id': 'gl-draw-line-inactive-edited',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 1]],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'edited']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -43,9 +43,9 @@ const styles = [
     }
   },
   {
-    'id': 'gl-draw-line-active-status-1',
+    'id': 'gl-draw-line-active-edited',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 1]],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'edited']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
