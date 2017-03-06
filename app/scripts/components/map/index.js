@@ -32,12 +32,14 @@ const Map = React.createClass({
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
-        controls: { trash: true, line_string: true }
+        controls: { trash: true, line_string: true },
+        userProperties: true
       });
       this.map.addControl(draw);
       this.draw = draw;
       window.Draw = draw;
       this.map.on('draw.create', (e) => {
+        e.features.forEach(this.markAsEdited);
         this.props.dispatch(updateSelection(e.features.map(f => {
           return { id: f.id, undo: null, redo: f };
         })));
@@ -48,6 +50,7 @@ const Map = React.createClass({
         })));
       });
       this.map.on('draw.update', (e) => {
+        e.features.forEach(this.markAsEdited);
         this.props.dispatch(updateSelection(e.features.map(f => {
           const oldFeature = this.selection.find(a => a.id === f.id);
           return { id: f.id, undo: oldFeature, redo: f };
@@ -130,6 +133,11 @@ const Map = React.createClass({
     if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
       this.props.dispatch(fetchMapData(coverTile));
     }
+  },
+
+  markAsEdited: function (feature) {
+    feature.properties.status = 'edited';
+    this.draw.add(feature);
   },
 
   render: function () {
