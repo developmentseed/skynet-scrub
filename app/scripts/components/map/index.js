@@ -3,10 +3,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import c from 'classnames';
+import bboxPolygon from 'turf-bbox-polygon';
+import { tiles } from 'tile-cover';
 import { mapboxgl, MapboxDraw } from '../../util/window';
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo } from '../../actions';
+import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
+  completeMapUpdate } from '../../actions';
 
 const glSupport = glSupported();
 const noGl = (
@@ -24,7 +27,7 @@ const Map = React.createClass({
         container: el,
         scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 11
+        zoom: 14
       });
       const draw = new MapboxDraw({
         styles: drawStyles,
@@ -57,6 +60,12 @@ const Map = React.createClass({
           this.selection = e.features;
         }
       });
+      this.map.on('load', (e) => {
+        this.loadMapData(e);
+      });
+      this.map.on('moveend', (e) => {
+        this.loadMapData(e);
+      });
     }
   },
 
@@ -68,6 +77,17 @@ const Map = React.createClass({
         this.featureUpdate(f, historyId);
       });
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
+    }
+
+    // if we have a tempStore, update the Draw.store with it then clear
+    if (nextProps.map.tempStore) {
+      nextProps.map.tempStore.forEach(feature => {
+        // only add, no deletes or updates
+        if (!this.draw.get(feature.properties.id)) {
+          this.draw.add(Object.assign({}, feature, { id: feature.properties.id }));
+        }
+      });
+      this.props.dispatch(completeMapUpdate());
     }
   },
 
@@ -89,6 +109,29 @@ const Map = React.createClass({
     this.props.dispatch(redo());
   },
 
+  getCoverTile: function (bounds, zoom) {
+    const limits = { min_zoom: zoom, max_zoom: zoom };
+    const feature = bboxPolygon(bounds[0].concat(bounds[1]));
+    const cover = tiles(feature.geometry, limits);
+
+    // if we have one tile to cover the area, return it, otherwise try at one
+    // zoom level up
+    return (cover.length === 1)
+    ? cover[0]
+    : this.getCoverTile(bounds, zoom - 1);
+  },
+
+  loadMapData: function (mapEvent) {
+    const coverTile = this.getCoverTile(
+      mapEvent.target.getBounds().toArray(),
+      Math.floor(mapEvent.target.getZoom())
+    );
+    // only fetch new data if we haven't requested this tile before
+    if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
+      this.props.dispatch(fetchMapData(coverTile));
+    }
+  },
+
   render: function () {
     const { past, future } = this.props.selection;
     if (!glSupport) { return noGl; }
@@ -102,13 +145,15 @@ const Map = React.createClass({
 
   propTypes: {
     dispatch: React.PropTypes.func,
-    selection: React.PropTypes.object
+    selection: React.PropTypes.object,
+    map: React.PropTypes.object
   }
 });
 
 function mapStateToProps (state) {
   return {
-    selection: state.selection
+    selection: state.selection,
+    map: state.map
   };
 }
 

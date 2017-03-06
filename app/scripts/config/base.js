@@ -1,3 +1,4 @@
 module.exports = {
-  environment: 'development'
+  environment: 'development',
+  baseUrl: 'http://localhost:4030'
 };

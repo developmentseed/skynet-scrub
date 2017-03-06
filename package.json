@@ -82,6 +82,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "hat": "0.0.3",
+    "isomorphic-fetch": "^2.2.1",
     "jsdom": "^9.11.0",
     "mapbox-gl-supported": "^1.2.0",
     "mock-browser": "^0.92.12",
@@ -93,6 +94,8 @@
     "react-router-scroll": "^0.4.1",
     "redux": "^3.6.0",
     "redux-logger": "^2.8.1",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "tile-cover": "^3.0.1",
+    "turf-bbox-polygon": "^3.0.12"
   }
 }
