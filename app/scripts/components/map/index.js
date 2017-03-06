@@ -27,7 +27,7 @@ const Map = React.createClass({
         container: el,
         scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 11
+        zoom: 14
       });
       const draw = new MapboxDraw({
         styles: drawStyles,
@@ -83,8 +83,8 @@ const Map = React.createClass({
     if (nextProps.map.tempStore) {
       nextProps.map.tempStore.forEach(feature => {
         // only add, no deletes or updates
-        if (!this.draw.get(feature.id)) {
-          this.draw.add(Object.assign({}, feature.object, { id: feature.id }));
+        if (!this.draw.get(feature.properties.id)) {
+          this.draw.add(Object.assign({}, feature, { id: feature.properties.id }));
         }
       });
       this.props.dispatch(completeMapUpdate());

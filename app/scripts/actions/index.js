@@ -53,6 +53,6 @@ export function fetchMapData (tile) {
     dispatch(requestTile(tile.join('/')));
     fetch(`${config.baseUrl}/features/${tile[2]}/${tile[0]}/${tile[1]}.json`)
       .then(response => response.json())
-      .then(response => dispatch(updateMapData(response.objects)));
+      .then(response => dispatch(updateMapData(response)));
   };
 }
