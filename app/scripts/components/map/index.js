@@ -14,7 +14,7 @@ const { mapboxgl, MapboxDraw, document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
-  completeMapUpdate } from '../../actions';
+  completeMapUpdate, changeDrawMode } from '../../actions';
 
 const SPLIT = 'split';
 
@@ -61,7 +61,7 @@ const Map = React.createClass({
         this.loadMapData(e);
       });
       this.map.on('click', (e) => {
-        switch (this.state.mode) {
+        switch (this.props.draw.mode) {
           case SPLIT: this.splitLine(e); break;
         }
       });
@@ -76,20 +76,13 @@ const Map = React.createClass({
 
   splitMode: function (options) {
     options = options || {};
-    if (this.state.mode === SPLIT) {
-      this.setState({ mode: null });
+    if (this.props.draw.mode === SPLIT) {
+      this.props.dispatch(changeDrawMode(null));
       this.draw.changeMode('simple_select', options);
     } else {
-      this.setState({ mode: SPLIT });
+      this.props.dispatch(changeDrawMode(SPLIT));
       this.draw.changeMode('static');
     }
-  },
-
-  getInitialState: function () {
-    return {
-      // not altogether elegant way of keeping track of "custom" modes.
-      mode: null
-    };
   },
 
   componentWillMount: function () {
@@ -141,14 +134,18 @@ const Map = React.createClass({
     const { ctrlKey, metaKey, shiftKey, keyCode } = e;
     // meta key can take the place of ctrl on osx
     const ctrl = ctrlKey || metaKey;
+    let isShortcut = true;
     switch (keyCode) {
       // z
       case (90):
-        if (shiftKey && ctrl && future.length) { this.redo(); }
-        else if (ctrl && past.length) { this.undo(); }
-      break;
+        if (shiftKey && ctrl && future.length) this.redo();
+        else if (ctrl && past.length) this.undo();
+        break;
+      default:
+        isShortcut = false;
     }
-    e.preventDefault();
+    // only prevent default if we hit a real shortcut
+    if (isShortcut) { e.preventDefault(); }
   },
 
   handleDelete: function (features) {
@@ -220,6 +217,7 @@ const Map = React.createClass({
 
     this.splitMode({ featureIds: newIds });
     const newLines = newIds.map(id => draw.get(id));
+
     // Mark the new lines as edited
     newLines.forEach(this.markAsEdited);
     const actions = newLines.map(createRedo).concat(createUndo(line));
@@ -233,7 +231,7 @@ const Map = React.createClass({
       <div className='map__container' ref={this.initMap} id={id}>
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
-        <button className={c({active: this.state.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+        <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
       </div>
     );
   },
@@ -241,16 +239,10 @@ const Map = React.createClass({
   propTypes: {
     dispatch: React.PropTypes.func,
     selection: React.PropTypes.object,
-    map: React.PropTypes.object
+    map: React.PropTypes.object,
+    draw: React.PropTypes.object
   }
 });
-
-function mapStateToProps (state) {
-  return {
-    selection: state.selection,
-    map: state.map
-  };
-}
 
 function createUndo (f) {
   return { id: f.id, undo: f, redo: null };
@@ -258,6 +250,14 @@ function createUndo (f) {
 
 function createRedo (f) {
   return { id: f.id, undo: null, redo: f };
+}
+
+function mapStateToProps (state) {
+  return {
+    selection: state.selection,
+    map: state.map,
+    draw: state.draw
+  };
 }
 
 export default connect(mapStateToProps)(Map);
