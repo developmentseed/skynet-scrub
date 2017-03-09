@@ -7,9 +7,10 @@ import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
-import { mapboxgl, MapboxDraw } from '../../util/window';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment } from '../../config';
+import window from '../../util/window';
+const { mapboxgl, MapboxDraw, document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
@@ -91,6 +92,18 @@ const Map = React.createClass({
     };
   },
 
+  componentWillMount: function () {
+    if (typeof document.addEventListener === 'function') {
+      document.addEventListener('keydown', this.handleShortcuts);
+    }
+  },
+
+  componentWillUnmount: function () {
+    if (typeof document.removeEventListener === 'function') {
+      document.removeEventListener('keydown', this.handleShortcuts);
+    }
+  },
+
   componentWillReceiveProps: function (nextProps) {
     // if we have a selection, update our map accordingly
     const { selection, historyId } = nextProps.selection.present;
@@ -121,6 +134,21 @@ const Map = React.createClass({
       // otherwise delete
       this.draw.delete(feature.id);
     }
+  },
+
+  handleShortcuts: function (e) {
+    const { past, future } = this.props.selection;
+    const { ctrlKey, metaKey, shiftKey, keyCode } = e;
+    // meta key can take the place of ctrl on osx
+    const ctrl = ctrlKey || metaKey;
+    switch (keyCode) {
+      // z
+      case (90):
+        if (shiftKey && ctrl && future.length) { this.redo(); }
+        else if (ctrl && past.length) { this.undo(); }
+      break;
+    }
+    e.preventDefault();
   },
 
   handleDelete: function (features) {
