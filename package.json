@@ -80,6 +80,8 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "@turf/helpers": "^3.10.5",
+    "@turf/line-slice": "^3.11.7",
     "classnames": "^2.2.5",
     "hat": "0.0.3",
     "isomorphic-fetch": "^2.2.1",
