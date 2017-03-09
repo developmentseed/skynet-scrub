@@ -191,7 +191,10 @@ const Map = React.createClass({
     newIds.push(draw.add(lineSlice(cursorAt, point(lastCoord(line)), line)));
 
     this.splitMode({ featureIds: newIds });
-    const actions = newIds.map(id => createRedo(draw.get(id))).concat(createUndo(line));
+    const newLines = newIds.map(id => draw.get(id));
+    // Mark the new lines as edited
+    newLines.forEach(this.markAsEdited);
+    const actions = newLines.map(createRedo).concat(createUndo(line));
     this.props.dispatch(updateSelection(actions));
   },
 
