@@ -93,6 +93,7 @@ export const Map = React.createClass({
     if (typeof document.removeEventListener === 'function') {
       document.removeEventListener('keydown', this.handleShortcuts);
     }
+    window.map = window.Draw = null;
   },
 
   componentWillReceiveProps: function (nextProps) {
