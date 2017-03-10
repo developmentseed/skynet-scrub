@@ -2,6 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import c from 'classnames';
+import { get as safeGet } from 'object-path';
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
@@ -186,6 +187,8 @@ export const Map = React.createClass({
   },
 
   loadMapData: function (mapEvent) {
+    const getBounds = safeGet(mapEvent, 'target.getBounds');
+    if (typeof getBounds !== 'function') return;
     const coverTile = this.getCoverTile(
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
