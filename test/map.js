@@ -65,6 +65,7 @@ test('map', function (t) {
   window.map.trigger('draw.update', event);
 
   args.forEach(d => t.equals(d.type, 'UPDATE_SELECTION'));
+  t.equals(args.length, 3);
   t.end();
 });
 
