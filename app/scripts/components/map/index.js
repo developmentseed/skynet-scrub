@@ -1,16 +1,16 @@
 'use strict';
 import React from 'react';
 import { connect } from 'react-redux';
-import glSupported from 'mapbox-gl-supported';
 import c from 'classnames';
+import { get as safeGet } from 'object-path';
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment } from '../../config';
-import window from '../../util/window';
-const { mapboxgl, MapboxDraw, document } = window;
+import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
+const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
@@ -18,18 +18,17 @@ import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
 
 const SPLIT = 'split';
 
-const glSupport = glSupported();
 const noGl = (
   <div className='nogl'>
     <p>Sorry, but your browser does not support GL.</p>
   </div>
 );
 const id = 'main-map-component';
-const Map = React.createClass({
+export const Map = React.createClass({
   initMap: function (el) {
     if (el && !this.map && glSupport) {
       mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
-      this.map = new mapboxgl.Map({
+      this.map = window.map = new mapboxgl.Map({
         center: [125.48, 9.7],
         container: el,
         scrollWheelZoom: false,
@@ -95,6 +94,7 @@ const Map = React.createClass({
     if (typeof document.removeEventListener === 'function') {
       document.removeEventListener('keydown', this.handleShortcuts);
     }
+    window.map = window.Draw = null;
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -187,6 +187,8 @@ const Map = React.createClass({
   },
 
   loadMapData: function (mapEvent) {
+    const getBounds = safeGet(mapEvent, 'target.getBounds');
+    if (typeof getBounds !== 'function') return;
     const coverTile = this.getCoverTile(
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
