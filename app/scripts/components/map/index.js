@@ -4,12 +4,19 @@ import { connect } from 'react-redux';
 import glSupported from 'mapbox-gl-supported';
 import c from 'classnames';
 import bboxPolygon from 'turf-bbox-polygon';
+import { point } from '@turf/helpers';
+import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
-import { mapboxgl, MapboxDraw } from '../../util/window';
+import { firstCoord, lastCoord } from '../../util/line';
+import { environment } from '../../config';
+import window from '../../util/window';
+const { mapboxgl, MapboxDraw, document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
-  completeMapUpdate } from '../../actions';
+  completeMapUpdate, changeDrawMode } from '../../actions';
+
+const SPLIT = 'split';
 
 const glSupport = glSupported();
 const noGl = (
@@ -38,25 +45,9 @@ const Map = React.createClass({
       this.map.addControl(draw);
       this.draw = draw;
       window.Draw = draw;
-      this.map.on('draw.create', (e) => {
-        e.features.forEach(this.markAsEdited);
-        this.props.dispatch(updateSelection(e.features.map(f => {
-          return { id: f.id, undo: null, redo: f };
-        })));
-      });
-      this.map.on('draw.delete', (e) => {
-        this.props.dispatch(updateSelection(e.features.map(f => {
-          return { id: f.id, undo: f, redo: null };
-        })));
-      });
-      this.map.on('draw.update', (e) => {
-        e.features.forEach(this.markAsEdited);
-        this.props.dispatch(updateSelection(e.features.map(f => {
-          const oldFeature = this.selection.find(a => a.id === f.id);
-          return { id: f.id, undo: oldFeature, redo: f };
-        })));
-        this.selection = draw.getSelected().features;
-      });
+      this.map.on('draw.create', (e) => this.handleCreate(e.features));
+      this.map.on('draw.delete', (e) => this.handleDelete(e.features));
+      this.map.on('draw.update', (e) => this.handleUpdate(e.features));
       this.map.on('draw.selectionchange', (e) => {
         if (e.features.length) {
           // internal state used to track "previous state" of edited geometry
@@ -69,6 +60,40 @@ const Map = React.createClass({
       this.map.on('moveend', (e) => {
         this.loadMapData(e);
       });
+      this.map.on('click', (e) => {
+        switch (this.props.draw.mode) {
+          case SPLIT: this.splitLine(e); break;
+        }
+      });
+      // development-only logs for when draw switches modes
+      if (environment === 'development') {
+        this.map.on('draw.modechange', (e) => {
+          console.log('mode', e.mode);
+        });
+      }
+    }
+  },
+
+  splitMode: function (options) {
+    options = options || {};
+    if (this.props.draw.mode === SPLIT) {
+      this.props.dispatch(changeDrawMode(null));
+      this.draw.changeMode('simple_select', options);
+    } else {
+      this.props.dispatch(changeDrawMode(SPLIT));
+      this.draw.changeMode('static');
+    }
+  },
+
+  componentWillMount: function () {
+    if (typeof document.addEventListener === 'function') {
+      document.addEventListener('keydown', this.handleShortcuts);
+    }
+  },
+
+  componentWillUnmount: function () {
+    if (typeof document.removeEventListener === 'function') {
+      document.removeEventListener('keydown', this.handleShortcuts);
     }
   },
 
@@ -102,6 +127,43 @@ const Map = React.createClass({
       // otherwise delete
       this.draw.delete(feature.id);
     }
+  },
+
+  handleShortcuts: function (e) {
+    const { past, future } = this.props.selection;
+    const { ctrlKey, metaKey, shiftKey, keyCode } = e;
+    // meta key can take the place of ctrl on osx
+    const ctrl = ctrlKey || metaKey;
+    let isShortcut = true;
+    switch (keyCode) {
+      // z
+      case (90):
+        if (shiftKey && ctrl && future.length) this.redo();
+        else if (ctrl && past.length) this.undo();
+        break;
+      default:
+        isShortcut = false;
+    }
+    // only prevent default if we hit a real shortcut
+    if (isShortcut) { e.preventDefault(); }
+  },
+
+  handleDelete: function (features) {
+    this.props.dispatch(updateSelection(features.map(createUndo)));
+  },
+
+  handleCreate: function (features) {
+    features.forEach(this.markAsEdited);
+    this.props.dispatch(updateSelection(features.map(createRedo)));
+  },
+
+  handleUpdate: function (features) {
+    features.forEach(this.markAsEdited);
+    this.props.dispatch(updateSelection(features.map(f => {
+      const oldFeature = this.selection.find(a => a.id === f.id);
+      return { id: f.id, undo: oldFeature, redo: f };
+    })));
+    this.selection = this.draw.getSelected().features;
   },
 
   undo: function () {
@@ -140,28 +202,61 @@ const Map = React.createClass({
     this.draw.add(feature);
   },
 
+  splitLine: function (e) {
+    const { draw } = this;
+    const ids = draw.getFeatureIdsAt(e.point);
+    if (!ids.length) { return; }
+    const line = draw.get(ids[0]);
+    const cursorAt = point([e.lngLat.lng, e.lngLat.lat]);
+
+    // delete the existing line, and add two additional lines.
+    draw.delete(line.id);
+    const newIds = [];
+    newIds.push(draw.add(lineSlice(point(firstCoord(line)), cursorAt, line)));
+    newIds.push(draw.add(lineSlice(cursorAt, point(lastCoord(line)), line)));
+
+    this.splitMode({ featureIds: newIds });
+    const newLines = newIds.map(id => draw.get(id));
+
+    // Mark the new lines as edited
+    newLines.forEach(this.markAsEdited);
+    const actions = newLines.map(createRedo).concat(createUndo(line));
+    this.props.dispatch(updateSelection(actions));
+  },
+
   render: function () {
     const { past, future } = this.props.selection;
     if (!glSupport) { return noGl; }
     return (
-        <div className='map__container' ref={this.initMap} id={id}>
+      <div className='map__container' ref={this.initMap} id={id}>
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
-        </div>
+        <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+      </div>
     );
   },
 
   propTypes: {
     dispatch: React.PropTypes.func,
     selection: React.PropTypes.object,
-    map: React.PropTypes.object
+    map: React.PropTypes.object,
+    draw: React.PropTypes.object
   }
 });
+
+function createUndo (f) {
+  return { id: f.id, undo: f, redo: null };
+}
+
+function createRedo (f) {
+  return { id: f.id, undo: null, redo: f };
+}
 
 function mapStateToProps (state) {
   return {
     selection: state.selection,
-    map: state.map
+    map: state.map,
+    draw: state.draw
   };
 }
 

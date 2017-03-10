@@ -9,6 +9,7 @@ export const COMPLETE_REDO = 'COMPLETE_REDO';
 export const COMPLETE_MAP_UPDATE = 'COMPLETE_MAP_UPDATE';
 export const UPDATE_MAP_DATA = 'UPDATE_MAP_DATA';
 export const REQUEST_TILE = 'REQUEST_TILE';
+export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
 
 /**
  * Updates the selection store with a new array of changes
@@ -44,6 +45,13 @@ export function completeMapUpdate () {
 
 export function updateMapData (data) {
   return { type: UPDATE_MAP_DATA, data };
+}
+
+// NOTE, this tracks our "internal" draw mode.
+// It's separate from Draw's built-in modes,
+// which we don't need to manage.
+export function changeDrawMode (data) {
+  return { type: CHANGE_DRAW_MODE, data };
 }
 
 /**
