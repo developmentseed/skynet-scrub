@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import test from 'tape';
-import sinon from 'sinon';
 import mock from 'mapbox-gl-js-mock';
 import window, * as global from '../app/scripts/util/window';
 global.glSupport = true;
