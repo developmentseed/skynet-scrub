@@ -110,6 +110,8 @@ const Map = React.createClass({
         this.featureUpdate(f, historyId);
       });
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
+      const ids = selection.map(d => d.id);
+      this.draw.changeMode('simple_select', { featureIds: ids });
     }
 
     // if we have a tempStore, update the Draw.store with it then clear
