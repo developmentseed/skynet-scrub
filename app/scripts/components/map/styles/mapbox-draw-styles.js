@@ -56,6 +56,33 @@ const styles = [
       'line-width': 3
     }
   },
+  {
+    'id': 'gl-draw-line-inactive-complete',
+    'type': 'line',
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'complete']],
+    'layout': {
+      'line-cap': 'round',
+      'line-join': 'round'
+    },
+    'paint': {
+      'line-color': '#00ff00',
+      'line-width': 4
+    }
+  },
+  {
+    'id': 'gl-draw-line-active-complete',
+    'type': 'line',
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'complete']],
+    'layout': {
+      'line-cap': 'round',
+      'line-join': 'round'
+    },
+    'paint': {
+      'line-color': '#00ff00',
+      'line-dasharray': [0.2, 2],
+      'line-width': 3
+    }
+  },
   // vertex point halos
   {
     'id': 'gl-draw-polygon-and-line-vertex-halo-simple-inactive',
