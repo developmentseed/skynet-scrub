@@ -12,7 +12,7 @@ import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
+import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode } from '../../actions';
 
 const SPLIT = 'split';
@@ -173,6 +173,13 @@ export const Map = React.createClass({
     this.props.dispatch(redo());
   },
 
+  save: function () {
+    const { past } = this.props.selection;
+    if (past.length) {
+      this.props.dispatch(save(past));
+    }
+  },
+
   getCoverTile: function (bounds, zoom) {
     const limits = { min_zoom: zoom, max_zoom: zoom };
     const feature = bboxPolygon(bounds[0].concat(bounds[1]));
@@ -225,6 +232,7 @@ export const Map = React.createClass({
   },
 
   render: function () {
+    const { save } = this.props;
     const { past, future } = this.props.selection;
     if (!glSupport) { return noGl; }
     return (
@@ -232,6 +240,9 @@ export const Map = React.createClass({
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
         <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+        <button onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+        {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+        {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
       </div>
     );
   },
@@ -240,7 +251,8 @@ export const Map = React.createClass({
     dispatch: React.PropTypes.func,
     selection: React.PropTypes.object,
     map: React.PropTypes.object,
-    draw: React.PropTypes.object
+    draw: React.PropTypes.object,
+    save: React.PropTypes.object
   }
 });
 
@@ -256,7 +268,8 @@ function mapStateToProps (state) {
   return {
     selection: state.selection,
     map: state.map,
-    draw: state.draw
+    draw: state.draw,
+    save: state.save
   };
 }
 
