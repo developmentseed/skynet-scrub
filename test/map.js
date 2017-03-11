@@ -21,6 +21,7 @@ function setup (options) {
   const props = Object.assign({
     selection: {
       past: [],
+      present: { historyId: 'initial' },
       future: []
     },
     draw: {

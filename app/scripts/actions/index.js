@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-fetch';
 import config from '../config';
 import compress from '../util/compress-changes';
+import isEmpty from 'lodash.isEmpty';
 
 export const UPDATE_SELECTION = 'UPDATE_SELECTION';
 export const UNDO = 'UNDO';
@@ -95,15 +96,17 @@ function checkStatus (response) {
     throw error;
   }
 }
-export function save (past) {
-  const payload = compress(past);
+export function save (past, lastHistoryId) {
+  const payload = compress(past, lastHistoryId);
+  if (isEmpty(payload.deleted) && isEmpty(payload.edited)) return { type: null };
   return (dispatch) => {
     dispatch(requestSave({ inflight: true, error: null }));
     fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
       .then(checkStatus)
       .then(response => {
-        dispatch(requestSave({ inflight: false, error: null, success: true }));
-        setTimeout(() => dispatch(requestSave({ infilght: false, success: null })), 500);
+        const historyId = past[past.length - 1].historyId;
+        dispatch(requestSave({ historyId, inflight: false, error: null, success: true }));
+        setTimeout(() => dispatch(requestSave({ success: null })), 500);
       })
       .catch(error => dispatch(requestSave({ inflight: false, error })));
   };

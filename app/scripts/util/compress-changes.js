@@ -1,10 +1,18 @@
 'use strict';
+import findIndex from 'lodash.findindex';
+
 // compress a series of changes from the store into a smaller format
-export default function compress (selectionArray) {
+export default function compress (selectionArray, lastHistoryId) {
   const deleted = {};
   const edited = {};
   const created = {};
-  selectionArray.forEach(selectionObj => {
+  let index = 0;
+  if (lastHistoryId) {
+    index = findIndex(selectionArray, d => d.historyId === lastHistoryId);
+    index = index === -1 ? 0 : index + 1;
+  }
+  for (let i = index; i < selectionArray.length; ++i) {
+    const selectionObj = selectionArray[i];
     const { selection } = selectionObj;
     selection.forEach(action => {
       const { id, undo, redo } = action;
@@ -25,7 +33,7 @@ export default function compress (selectionArray) {
         else edited[id] = redo;
       }
     });
-  });
+  }
   return {
     deleted: Object.keys(deleted),
     edited: values(edited).concat(values(created))

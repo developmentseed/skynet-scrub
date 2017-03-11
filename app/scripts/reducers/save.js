@@ -2,7 +2,9 @@ import { SAVE } from '../actions';
 
 const initial = {
   inflight: false,
-  error: null
+  error: null,
+  success: null,
+  historyId: null
 };
 
 const save = (state = initial, action) => {
