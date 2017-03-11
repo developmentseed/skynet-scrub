@@ -1,9 +1,11 @@
 import fetch from 'isomorphic-fetch';
 import config from '../config';
+import compress from '../util/compress-changes';
 
 export const UPDATE_SELECTION = 'UPDATE_SELECTION';
 export const UNDO = 'UNDO';
 export const REDO = 'REDO';
+export const SAVE = 'SAVE';
 export const COMPLETE_UNDO = 'COMPLETE_UNDO';
 export const COMPLETE_REDO = 'COMPLETE_REDO';
 export const COMPLETE_MAP_UPDATE = 'COMPLETE_MAP_UPDATE';
@@ -70,5 +72,39 @@ export function fetchMapData (tile) {
     fetch(`${config.baseUrl}/features/${tile[2]}/${tile[0]}/${tile[1]}.json`)
       .then(response => response.json())
       .then(response => dispatch(updateMapData(response)));
+  };
+}
+
+/**
+ * Commit changes
+  * @param {array} a set of stored actions to commit
+  * @returns {Object} Redux action.
+ */
+
+export function requestSave (data) {
+  return { type: SAVE, data };
+}
+
+const headers = { 'Content-Type': 'application/json' };
+function checkStatus (response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+}
+export function save (past) {
+  const payload = compress(past);
+  return (dispatch) => {
+    dispatch(requestSave({ inflight: true, error: null }));
+    fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
+      .then(checkStatus)
+      .then(response => {
+        dispatch(requestSave({ inflight: false, error: null, success: true }));
+        setTimeout(() => dispatch(requestSave({ infilght: false, success: null })), 500);
+      })
+      .catch(error => dispatch(requestSave({ inflight: false, error })));
   };
 }
