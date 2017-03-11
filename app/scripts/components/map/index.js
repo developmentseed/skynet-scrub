@@ -238,8 +238,8 @@ export const Map = React.createClass({
 
   render: function () {
     const { save } = this.props;
-    const { past, present, future } = this.props.selection;
-    const isSynced = present.historyId === 'initial' || save.historyId === past[past.length - 1].historyId;
+    const { past, future } = this.props.selection;
+    const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
     if (!glSupport) { return noGl; }
     return (
       <div className='map__container' ref={this.initMap} id={id}>
