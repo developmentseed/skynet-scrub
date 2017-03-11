@@ -7,7 +7,7 @@ export default function compress (selectionArray, lastHistoryId) {
   const edited = {};
   const created = {};
   let index = 0;
-  if (lastHistoryId) {
+  if (typeof lastHistoryId !== 'undefined') {
     index = findIndex(selectionArray, d => d.historyId === lastHistoryId);
     index = index === -1 ? 0 : index + 1;
   }
