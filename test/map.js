@@ -25,7 +25,8 @@ function setup (options) {
     },
     draw: {
       mode: null
-    }
+    },
+    save: {}
   }, options);
   const map = mount(<Map {...props} />);
 
