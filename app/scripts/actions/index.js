@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch';
 import config from '../config';
 import compress from '../util/compress-changes';
-import isEmpty from 'lodash.isEmpty';
+import isEmpty from 'lodash.isempty';
 
 export const UPDATE_SELECTION = 'UPDATE_SELECTION';
 export const UNDO = 'UNDO';
