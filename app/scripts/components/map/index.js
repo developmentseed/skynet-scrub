@@ -175,9 +175,8 @@ export const Map = React.createClass({
 
   save: function () {
     const { past } = this.props.selection;
-    if (past.length) {
-      this.props.dispatch(save(past));
-    }
+    const { historyId } = this.props.save;
+    this.props.dispatch(save(past, historyId));
   },
 
   getCoverTile: function (bounds, zoom) {
@@ -233,14 +232,15 @@ export const Map = React.createClass({
 
   render: function () {
     const { save } = this.props;
-    const { past, future } = this.props.selection;
+    const { past, present, future } = this.props.selection;
+    const isSynced = present.historyId === 'initial' || save.historyId === past[past.length - 1].historyId;
     if (!glSupport) { return noGl; }
     return (
       <div className='map__container' ref={this.initMap} id={id}>
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
         <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
-        <button onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+        <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
         {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
         {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
       </div>
