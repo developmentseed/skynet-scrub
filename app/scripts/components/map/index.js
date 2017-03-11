@@ -135,10 +135,16 @@ export const Map = React.createClass({
     const ctrl = ctrlKey || metaKey;
     let isShortcut = true;
     switch (keyCode) {
+
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
         else if (ctrl && past.length) this.undo();
+        break;
+
+      // s
+      case (83):
+        if (ctrl) this.save();
         break;
       default:
         isShortcut = false;
