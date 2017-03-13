@@ -78,7 +78,7 @@ export function fetchMapData (tile) {
 
 /**
  * Commit changes
-  * @param {array} a set of stored actions to commit
+  * @param {Array} data a set of stored actions to commit
   * @returns {Object} Redux action.
  */
 
