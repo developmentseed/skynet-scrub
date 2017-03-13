@@ -21,11 +21,13 @@ function setup (options) {
   const props = Object.assign({
     selection: {
       past: [],
+      present: { historyId: 'initial' },
       future: []
     },
     draw: {
       mode: null
-    }
+    },
+    save: {}
   }, options);
   const map = mount(<Map {...props} />);
 

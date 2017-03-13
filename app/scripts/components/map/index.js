@@ -12,7 +12,7 @@ import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
+import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode } from '../../actions';
 
 const SPLIT = 'split';
@@ -135,10 +135,16 @@ export const Map = React.createClass({
     const ctrl = ctrlKey || metaKey;
     let isShortcut = true;
     switch (keyCode) {
+
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
         else if (ctrl && past.length) this.undo();
+        break;
+
+      // s
+      case (83):
+        if (ctrl) this.save();
         break;
       default:
         isShortcut = false;
@@ -171,6 +177,12 @@ export const Map = React.createClass({
 
   redo: function () {
     this.props.dispatch(redo());
+  },
+
+  save: function () {
+    const { past } = this.props.selection;
+    const { historyId } = this.props.save;
+    this.props.dispatch(save(past, historyId));
   },
 
   getCoverTile: function (bounds, zoom) {
@@ -225,13 +237,18 @@ export const Map = React.createClass({
   },
 
   render: function () {
+    const { save } = this.props;
     const { past, future } = this.props.selection;
+    const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
     if (!glSupport) { return noGl; }
     return (
       <div className='map__container' ref={this.initMap} id={id}>
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
         <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+        <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+        {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+        {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
       </div>
     );
   },
@@ -240,7 +257,8 @@ export const Map = React.createClass({
     dispatch: React.PropTypes.func,
     selection: React.PropTypes.object,
     map: React.PropTypes.object,
-    draw: React.PropTypes.object
+    draw: React.PropTypes.object,
+    save: React.PropTypes.object
   }
 });
 
@@ -256,7 +274,8 @@ function mapStateToProps (state) {
   return {
     selection: state.selection,
     map: state.map,
-    draw: state.draw
+    draw: state.draw,
+    save: state.save
   };
 }
 
