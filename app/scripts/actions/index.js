@@ -28,9 +28,9 @@ export function updateSelection (selectionArray) {
   return { type: UPDATE_SELECTION, data: selectionArray };
 }
 
-// Fast forward is similar to updateSelection,
-// except it introduces a number of items to "redo",
-// effectively acting as a fast-forward.
+// Fast forward is somewhat similar to updateSelection,
+// except it introduces the selection in the "present" with a redo command,
+// effectively jump-kicking Draw into the desired state.
 export function fastForward (selectionArray) {
   return { type: FAST_FORWARD, data: selectionArray };
 }
@@ -59,7 +59,9 @@ export function updateMapData (data) {
   return { type: UPDATE_MAP_DATA, data };
 }
 
-// This only tells the *initial* modal
+// NOTE, This only informs whether the *initial* restore/forget
+// modal shows up. We otherwise don't store another copy of selection
+// state (outside of localStorage that is).
 export function updateLocalStore (actions) {
   return { type: LOCAL_STORAGE, data: actions };
 }

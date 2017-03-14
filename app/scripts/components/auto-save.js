@@ -18,17 +18,16 @@ export const AutoSave = React.createClass({
     const { historyId, success } = newProps.save;
     const { past } = newProps.selection;
     if (success && autosave.getLocalActions()) {
+      // on save success, if there's any stored items, remove them.
       this.forget();
     } else if (past.length && historyId !== past[past.length - 1].historyId) {
+      // if we have unsaved changes, persist them to localStorage.
       this.store(past, historyId);
     }
   },
 
-  componentWillUnmount: function () {
-    this.cancel();
-  },
-
   store: function (past, historyId) {
+    // compress the past selection array as a single action.
     const compressed = historyId ? compressChanges(past, historyId) : compressChanges(past);
     autosave.saveLocalActions(compressed);
   },
