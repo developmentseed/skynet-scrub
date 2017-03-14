@@ -111,7 +111,9 @@ const Map = React.createClass({
       });
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
       const ids = selection.map(d => d.id);
+      // Hack to ensure Draw renders the correct color
       this.draw.changeMode('simple_select', { featureIds: ids });
+      this.draw.changeMode('simple_select', { featureIds: [] });
     }
 
     // if we have a tempStore, update the Draw.store with it then clear
