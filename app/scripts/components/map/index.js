@@ -11,6 +11,8 @@ import { environment } from '../../config';
 import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
+import AutoSave from './auto-save';
+
 import drawStyles from './styles/mapbox-draw-styles';
 import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode } from '../../actions';
@@ -249,6 +251,7 @@ export const Map = React.createClass({
         <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
         {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
         {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+        <AutoSave />
       </div>
     );
   },
