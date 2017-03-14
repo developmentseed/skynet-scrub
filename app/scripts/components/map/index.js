@@ -6,6 +6,7 @@ import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
+import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment } from '../../config';
 import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
@@ -16,6 +17,10 @@ import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMap
   completeMapUpdate, changeDrawMode } from '../../actions';
 
 const SPLIT = 'split';
+const COMPLETE = 'complete';
+const INCOMPLETE = 'incomplete';
+const EDITED = 'edited';
+const MULTIPLE = 'multiple';
 
 const noGl = (
   <div className='nogl'>
@@ -24,6 +29,8 @@ const noGl = (
 );
 const id = 'main-map-component';
 export const Map = React.createClass({
+  getInitialState: () => ({ selected: [] }),
+
   initMap: function (el) {
     if (el && !this.map && glSupport) {
       mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
@@ -47,10 +54,8 @@ export const Map = React.createClass({
       this.map.on('draw.delete', (e) => this.handleDelete(e.features));
       this.map.on('draw.update', (e) => this.handleUpdate(e.features));
       this.map.on('draw.selectionchange', (e) => {
-        if (e.features.length) {
-          // internal state used to track "previous state" of edited geometry
-          this.selection = e.features;
-        }
+        // internal state used to track "previous state" of edited geometry
+        this.setState({selected: e.features});
       });
       this.map.on('load', (e) => {
         this.loadMapData(e);
@@ -104,6 +109,10 @@ export const Map = React.createClass({
         this.featureUpdate(f, historyId);
       });
       this.props.dispatch(historyId === 'undo' ? completeUndo() : completeRedo());
+      const ids = selection.map(d => d.id);
+      // Hack to ensure Draw renders the correct color
+      this.draw.changeMode('simple_select', { featureIds: ids });
+      this.draw.changeMode('simple_select', { featureIds: [] });
     }
 
     // if we have a tempStore, update the Draw.store with it then clear
@@ -139,7 +148,7 @@ export const Map = React.createClass({
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
-        else if (ctrl && past.length) this.undo();
+        else if (!shiftKey && ctrl && past.length) this.undo();
         break;
 
       // s
@@ -165,10 +174,10 @@ export const Map = React.createClass({
   handleUpdate: function (features) {
     features.forEach(this.markAsEdited);
     this.props.dispatch(updateSelection(features.map(f => {
-      const oldFeature = this.selection.find(a => a.id === f.id);
+      const oldFeature = this.state.selected.find(a => a.id === f.id);
       return { id: f.id, undo: oldFeature, redo: f };
     })));
-    this.selection = this.draw.getSelected().features;
+    this.setState({selected: this.draw.getSelected().features});
   },
 
   undo: function () {
@@ -210,8 +219,11 @@ export const Map = React.createClass({
   },
 
   markAsEdited: function (feature) {
-    feature.properties.status = 'edited';
-    this.draw.add(feature);
+    // only mark line status as edited if it has no prior status
+    if (!feature.properties.status) {
+      feature.properties.status = EDITED;
+      this.draw.add(feature);
+    }
   },
 
   splitLine: function (e) {
@@ -236,16 +248,39 @@ export const Map = React.createClass({
     this.props.dispatch(updateSelection(actions));
   },
 
+  setLineStatus: function (e) {
+    const { value } = e.currentTarget;
+    if (value === MULTIPLE) return;
+    const ids = this.state.selected.map(d => d.id);
+    // set the new completion status
+    ids.forEach(id => this.draw.setFeatureProperty(id, 'status', value));
+    // re-query the features and add to history
+    const updatedFeatures = ids.map(id => this.draw.get(id));
+    this.handleUpdate(updatedFeatures);
+  },
+
   render: function () {
+    if (!glSupport) { return noGl; }
     const { save } = this.props;
     const { past, future } = this.props.selection;
     const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
-    if (!glSupport) { return noGl; }
+    const selectedFeatures = this.state.selected;
+    const statuses = uniq(selectedFeatures.map(d => d.properties.status || INCOMPLETE));
+    const status = !statuses.length ? null
+      : statuses.length > 1 ? MULTIPLE : statuses[0];
     return (
       <div className='map__container' ref={this.initMap} id={id}>
         <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
         <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
         <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+        {selectedFeatures.length ? (
+          <select value={status} onChange={this.setLineStatus}>
+            {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+            <option value={INCOMPLETE}>Incomplete</option>
+            <option value={EDITED}>Edited</option>
+            <option value={COMPLETE}>Complete</option>
+          </select>
+        ) : null}
         <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
         {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
         {save.success ? <span style={{float: 'right'}}>Success!</span> : null}

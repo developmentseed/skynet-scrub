@@ -13,7 +13,7 @@ global.mapboxgl = mock;
 const draw = () => true;
 draw.prototype.add = () => true;
 draw.prototype.onAdd = () => true;
-draw.prototype.getSelected = () => [{}];
+draw.prototype.getSelected = () => ({ features: [{ properties: {} }] });
 global.MapboxDraw = draw;
 
 function setup (options) {
@@ -49,7 +49,7 @@ test('map', function (t) {
   };
   window.map.fire('draw.create', event);
   window.map.fire('draw.delete', event);
-  window.map.fire('draw.selectionchange', { features: [{}] });
+  window.map.fire('draw.selectionchange', { features: [{ properties: {} }] });
   window.map.fire('draw.update', event);
 
   args.forEach(d => t.equals(d.type, 'UPDATE_SELECTION'));

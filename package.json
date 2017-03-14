@@ -92,6 +92,7 @@
     "jsdom": "^9.11.0",
     "lodash.findindex": "^4.6.0",
     "lodash.isempty": "^4.4.0",
+    "lodash.uniq": "^4.5.0",
     "mapbox-gl-supported": "^1.2.0",
     "mock-browser": "^0.92.12",
     "object-path": "^0.11.4",
