@@ -13,6 +13,7 @@ export const COMPLETE_MAP_UPDATE = 'COMPLETE_MAP_UPDATE';
 export const UPDATE_MAP_DATA = 'UPDATE_MAP_DATA';
 export const REQUEST_TILE = 'REQUEST_TILE';
 export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
+export const LOCAL_STORAGE = 'LOCAL_STORAGE';
 
 /**
  * Updates the selection store with a new array of changes
