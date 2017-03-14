@@ -5,7 +5,6 @@ import * as autosave from '../util/auto-save';
 import { compressChanges } from '../util/compress-changes';
 import { fastForward, updateLocalStore } from '../actions';
 
-const INTERVAL = 1000;
 export const AutoSave = React.createClass({
 
   componentWillMount: function () {
