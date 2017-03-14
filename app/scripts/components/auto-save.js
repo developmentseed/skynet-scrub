@@ -1,9 +1,9 @@
 'use strict';
 import React from 'react';
 import { connect } from 'react-redux';
-import * as autosave from '../../util/auto-save';
-import { compressChanges } from '../../util/compress-changes';
-import { updateSelection, updateLocalStore } from '../../actions';
+import * as autosave from '../util/auto-save';
+import { compressChanges } from '../util/compress-changes';
+import { updateSelection, updateLocalStore } from '../actions';
 
 const INTERVAL = 1000;
 export const AutoSave = React.createClass({
