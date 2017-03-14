@@ -48,7 +48,7 @@ const selection = (state = initial, action) => {
       };
     case FAST_FORWARD:
       return {
-        past: [ { historyId: present.historyId, selection: present.selection } ],
+        past,
         present: { selection: action.data, historyId: 'redo' },
         future: []
       };
