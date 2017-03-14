@@ -1,7 +1,6 @@
 'use strict';
 import React from 'react';
 import { connect } from 'react-redux';
-import glSupported from 'mapbox-gl-supported';
 import c from 'classnames';
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
@@ -10,11 +9,11 @@ import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment } from '../../config';
-import window from '../../util/window';
-const { mapboxgl, MapboxDraw, document } = window;
+import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
+const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, fetchMapData,
+import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode } from '../../actions';
 
 const SPLIT = 'split';
@@ -23,20 +22,19 @@ const INCOMPLETE = 'incomplete';
 const EDITED = 'edited';
 const MULTIPLE = 'multiple';
 
-const glSupport = glSupported();
 const noGl = (
   <div className='nogl'>
     <p>Sorry, but your browser does not support GL.</p>
   </div>
 );
 const id = 'main-map-component';
-const Map = React.createClass({
+export const Map = React.createClass({
   getInitialState: () => ({ selected: [] }),
 
   initMap: function (el) {
     if (el && !this.map && glSupport) {
       mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
-      this.map = new mapboxgl.Map({
+      this.map = window.map = new mapboxgl.Map({
         center: [125.48, 9.7],
         container: el,
         scrollWheelZoom: false,
@@ -100,6 +98,7 @@ const Map = React.createClass({
     if (typeof document.removeEventListener === 'function') {
       document.removeEventListener('keydown', this.handleShortcuts);
     }
+    window.map = window.Draw = null;
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -145,10 +144,16 @@ const Map = React.createClass({
     const ctrl = ctrlKey || metaKey;
     let isShortcut = true;
     switch (keyCode) {
+
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
         else if (!shiftKey && ctrl && past.length) this.undo();
+        break;
+
+      // s
+      case (83):
+        if (ctrl) this.save();
         break;
       default:
         isShortcut = false;
@@ -183,6 +188,12 @@ const Map = React.createClass({
     this.props.dispatch(redo());
   },
 
+  save: function () {
+    const { past } = this.props.selection;
+    const { historyId } = this.props.save;
+    this.props.dispatch(save(past, historyId));
+  },
+
   getCoverTile: function (bounds, zoom) {
     const limits = { min_zoom: zoom, max_zoom: zoom };
     const feature = bboxPolygon(bounds[0].concat(bounds[1]));
@@ -196,6 +207,7 @@ const Map = React.createClass({
   },
 
   loadMapData: function (mapEvent) {
+    if (!mapEvent.target.getBounds) return;
     const coverTile = this.getCoverTile(
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
@@ -249,7 +261,9 @@ const Map = React.createClass({
 
   render: function () {
     if (!glSupport) { return noGl; }
+    const { save } = this.props;
     const { past, future } = this.props.selection;
+    const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
     const selectedFeatures = this.state.selected;
     const statuses = uniq(selectedFeatures.map(d => d.properties.status || INCOMPLETE));
     const status = !statuses.length ? null
@@ -267,6 +281,9 @@ const Map = React.createClass({
             <option value={COMPLETE}>Complete</option>
           </select>
         ) : null}
+        <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+        {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+        {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
       </div>
     );
   },
@@ -275,7 +292,8 @@ const Map = React.createClass({
     dispatch: React.PropTypes.func,
     selection: React.PropTypes.object,
     map: React.PropTypes.object,
-    draw: React.PropTypes.object
+    draw: React.PropTypes.object,
+    save: React.PropTypes.object
   }
 });
 
@@ -291,7 +309,8 @@ function mapStateToProps (state) {
   return {
     selection: state.selection,
     map: state.map,
-    draw: state.draw
+    draw: state.draw,
+    save: state.save
   };
 }
 
