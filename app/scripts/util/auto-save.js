@@ -11,3 +11,7 @@ export function destroyLocalActions () {
   store.set(KEY, NULL);
   return stored === NULL ? false : stored;
 }
+export function saveLocalActions (actions) {
+  store.set(KEY, actions);
+  return actions;
+}
