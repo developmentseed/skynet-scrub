@@ -33,7 +33,12 @@ export const AutoSave = React.createClass({
   restore: function () {
     const { cached } = this.props.save;
     this.props.dispatch(updateSelection(cached));
+    this.remove();
+  },
+
+  remove: function () {
     this.props.dispatch(updateLocalStore(null));
+    autosave.destroyLocalActions();
   },
 
   describeAction: function (action) {
@@ -50,6 +55,7 @@ export const AutoSave = React.createClass({
       <div>
         <ul className='cached'>{items}</ul>
         <button onClick={this.restore}>Restore</button>
+        <button onClick={this.remove}>Forget about it</button>
       </div>
     );
   },
@@ -59,7 +65,13 @@ export const AutoSave = React.createClass({
     return (
       <div className='autosave'>
         { cached ? <div className='modal__cover'></div> : null }
-        { cached ? <div className='modal'>{this.renderCached(cached)}</div> : null }
+        { cached ? (
+          <div className='modal'>
+            <div className='modal__inner'>
+              {this.renderCached(cached)}
+            </div>
+          </div>
+        ) : null }
       </div>
     );
   },
