@@ -14,6 +14,7 @@ export const UPDATE_MAP_DATA = 'UPDATE_MAP_DATA';
 export const REQUEST_TILE = 'REQUEST_TILE';
 export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
 export const LOCAL_STORAGE = 'LOCAL_STORAGE';
+export const FAST_FORWARD = 'FAST_FORWARD';
 
 /**
  * Updates the selection store with a new array of changes
@@ -25,6 +26,13 @@ export const LOCAL_STORAGE = 'LOCAL_STORAGE';
  */
 export function updateSelection (selectionArray) {
   return { type: UPDATE_SELECTION, data: selectionArray };
+}
+
+// Fast forward is similar to updateSelection,
+// except it introduces a number of items to "redo",
+// effectively acting as a fast-forward.
+export function fastForward (selectionArray) {
+  return { type: FAST_FORWARD, data: selectionArray };
 }
 
 export function undo () {

@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as autosave from '../util/auto-save';
 import { compressChanges } from '../util/compress-changes';
-import { updateSelection, updateLocalStore } from '../actions';
+import { fastForward, updateLocalStore } from '../actions';
 
 const INTERVAL = 1000;
 export const AutoSave = React.createClass({
@@ -13,30 +13,34 @@ export const AutoSave = React.createClass({
     if (unsaved) {
       this.props.dispatch(updateLocalStore(unsaved));
     }
-    const interval = setInterval(this.store, INTERVAL);
-    this.cancel = () => clearInterval(interval);
+  },
+
+  componentWillReceiveProps: function (newProps) {
+    const { historyId, success } = newProps.save;
+    const { past } = newProps.selection;
+    if (success && autosave.getLocalActions()) {
+      this.forget();
+    } else if (past.length && historyId !== past[past.length - 1].historyId) {
+      this.store(past, historyId);
+    }
   },
 
   componentWillUnmount: function () {
     this.cancel();
   },
 
-  store: function () {
-    const { historyId } = this.props.save;
-    const { past } = this.props.selection;
-    if (!past.length || historyId === past[past.length - 1].historyId) return;
-    const compressed = historyId
-      ? compressChanges(past, historyId) : compressChanges(past);
+  store: function (past, historyId) {
+    const compressed = historyId ? compressChanges(past, historyId) : compressChanges(past);
     autosave.saveLocalActions(compressed);
   },
 
   restore: function () {
     const { cached } = this.props.save;
-    this.props.dispatch(updateSelection(cached));
-    this.remove();
+    this.props.dispatch(fastForward(cached));
+    this.forget();
   },
 
-  remove: function () {
+  forget: function () {
     this.props.dispatch(updateLocalStore(null));
     autosave.destroyLocalActions();
   },
@@ -55,7 +59,7 @@ export const AutoSave = React.createClass({
       <div>
         <ul className='cached'>{items}</ul>
         <button onClick={this.restore}>Restore</button>
-        <button onClick={this.remove}>Forget about it</button>
+        <button onClick={this.forget}>Forget about it</button>
       </div>
     );
   },
