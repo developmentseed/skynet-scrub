@@ -148,7 +148,7 @@ const Map = React.createClass({
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
-        else if (ctrl && past.length) this.undo();
+        else if (!shiftKey && ctrl && past.length) this.undo();
         break;
       default:
         isShortcut = false;
