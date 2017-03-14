@@ -51,6 +51,11 @@ export function updateMapData (data) {
   return { type: UPDATE_MAP_DATA, data };
 }
 
+// This only tells the *initial* modal
+export function updateLocalStore (actions) {
+  return { type: LOCAL_STORAGE, data: actions };
+}
+
 // NOTE, this tracks our "internal" draw mode.
 // It's separate from Draw's built-in modes,
 // which we don't need to manage.
