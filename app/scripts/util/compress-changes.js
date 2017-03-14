@@ -2,7 +2,7 @@
 import findIndex from 'lodash.findindex';
 
 // compress a series of changes into a single change per id
-function compressChanges (selectionArray, lastHistoryId) {
+export function compressChanges (selectionArray, lastHistoryId) {
   let index = 0;
   if (typeof lastHistoryId !== 'undefined') {
     index = findIndex(selectionArray, d => d.historyId === lastHistoryId);
@@ -22,7 +22,7 @@ function compressChanges (selectionArray, lastHistoryId) {
       }
     });
   }
-  return values(compressed);
+  return values(compressed).filter(action => action.undo || action.redo);
 }
 
 // compress a series of changes from the store into a smaller format
