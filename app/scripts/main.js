@@ -12,10 +12,13 @@ import { Router, Route, IndexRoute, hashHistory, applyRouterMiddleware } from 'r
 
 import config from './config';
 import reducers from './reducers';
+import { LOCAL_STORAGE } from './actions';
 
 import App from './components/app';
 import NotFound from './components/app/not-found';
 import Home from './components/home';
+
+import { getLocalActions } from './utils/auto-save';
 
 const logger = createLogger({
   level: 'info',
@@ -32,6 +35,11 @@ const store = createStore(reducers, applyMiddleware(
 
 console.log.apply(console, config.consoleMessage);
 console.log('Environment', config.environment);
+
+const unsaved = getLocalActions();
+if (unsaved) {
+  store.dispatch({ type: LOCAL_STORAGE, data: unsaved });
+}
 
 render((
   <Provider store={store}>
