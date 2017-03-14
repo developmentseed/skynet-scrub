@@ -13,6 +13,8 @@ export const COMPLETE_MAP_UPDATE = 'COMPLETE_MAP_UPDATE';
 export const UPDATE_MAP_DATA = 'UPDATE_MAP_DATA';
 export const REQUEST_TILE = 'REQUEST_TILE';
 export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
+export const LOCAL_STORAGE = 'LOCAL_STORAGE';
+export const FAST_FORWARD = 'FAST_FORWARD';
 
 /**
  * Updates the selection store with a new array of changes
@@ -24,6 +26,13 @@ export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
  */
 export function updateSelection (selectionArray) {
   return { type: UPDATE_SELECTION, data: selectionArray };
+}
+
+// Fast forward is somewhat similar to updateSelection,
+// except it introduces the selection in the "present" with a redo command,
+// effectively jump-kicking Draw into the desired state.
+export function fastForward (selectionArray) {
+  return { type: FAST_FORWARD, data: selectionArray };
 }
 
 export function undo () {
@@ -48,6 +57,13 @@ export function completeMapUpdate () {
 
 export function updateMapData (data) {
   return { type: UPDATE_MAP_DATA, data };
+}
+
+// NOTE, This only informs whether the *initial* restore/forget
+// modal shows up. We otherwise don't store another copy of selection
+// state (outside of localStorage that is).
+export function updateLocalStore (actions) {
+  return { type: LOCAL_STORAGE, data: actions };
 }
 
 // NOTE, this tracks our "internal" draw mode.

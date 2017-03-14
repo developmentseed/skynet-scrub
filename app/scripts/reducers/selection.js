@@ -1,5 +1,5 @@
 import hat from 'hat';
-import { UNDO, REDO, COMPLETE_UNDO, COMPLETE_REDO, UPDATE_SELECTION } from '../actions';
+import { UNDO, REDO, COMPLETE_UNDO, COMPLETE_REDO, UPDATE_SELECTION, FAST_FORWARD } from '../actions';
 
 const initial = {
   past: [],
@@ -45,6 +45,12 @@ const selection = (state = initial, action) => {
         past: [ ...past, present ],
         present: { historyId: rack(), selection: [] },
         future
+      };
+    case FAST_FORWARD:
+      return {
+        past,
+        present: { selection: action.data, historyId: 'redo' },
+        future: []
       };
     default:
       return state;
