@@ -18,7 +18,7 @@ import App from './components/app';
 import NotFound from './components/app/not-found';
 import Home from './components/home';
 
-import { getLocalActions } from './utils/auto-save';
+import { getLocalActions } from './util/auto-save';
 
 const logger = createLogger({
   level: 'info',
