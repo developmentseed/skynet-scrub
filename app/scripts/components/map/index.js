@@ -128,22 +128,28 @@ export const Map = React.createClass({
       this.props.dispatch(completeMapUpdate());
     }
 
-    const hidden = Object.keys(nextProps.draw.hidden);
-    if (hidden.length) {
-      this.draw.getAll().features.forEach((feature) => {
-        if (feature.properties.status) {
-          hidden.forEach((status) => {
-            if (feature.properties.status === status) {
-              this.draw.setFeatureProperty(feature.id, 'visibility', 'none');
-            }
-          });
-        } else if (hidden.incomplete) {
-          this.draw.setFeatureProperty(feature.id, 'visibility', 'none');
-        } else {
-          this.draw.setFeatureProperty(feature.id, 'visibility', null);
-        }
-      });
-    }
+    const hiddenLines = Object.keys(nextProps.draw.hidden);
+
+    const hideLine = (featureId) => {
+      this.draw.setFeatureProperty(featureId, 'visibility', 'none');
+    };
+
+    const showLine = (featureId) => {
+      this.draw.setFeatureProperty(featureId, 'visibility', null);
+    };
+
+    this.draw.getAll().features.forEach((feature, i) => {
+      const visible = feature.properties.visibility !== 'none';
+      const featureStatus = feature.properties.status ? feature.properties.status : 'incomplete';
+
+      if (!hiddenLines.length) {
+        if (!visible) showLine(feature.id);
+      } else if (!visible && hiddenLines.indexOf(featureStatus) === -1) {
+        showLine(feature.id);
+      } else if (visible && hiddenLines.indexOf(featureStatus) > -1) {
+        hideLine(feature.id);
+      }
+    });
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
