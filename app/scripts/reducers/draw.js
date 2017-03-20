@@ -10,11 +10,11 @@ const draw = (state = initial, action) => {
     case CHANGE_DRAW_MODE:
       return { mode: action.data };
     case TOGGLE_VISIBILITY:
-      const status = action.data
+      const status = action.data;
       if (state.hidden[status]) {
-        delete state.hidden[status]
+        delete state.hidden[status];
       } else {
-        state.hidden[status] = true
+        state.hidden[status] = true;
       }
       return Object.assign({}, state);
     default:

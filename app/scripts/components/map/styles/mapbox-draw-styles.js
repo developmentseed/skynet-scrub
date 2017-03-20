@@ -136,7 +136,7 @@ const styles = [
     'id': 'gl-draw-visibility',
     'type': 'line',
     'filter': ['==', 'user_visibility', 'none'],
-    'visibility': 'none',
+    'visibility': 'none'
   },
 
   // INACTIVE (static, already drawn)

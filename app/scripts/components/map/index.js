@@ -134,15 +134,15 @@ export const Map = React.createClass({
         if (feature.properties.status) {
           hidden.forEach((status) => {
             if (feature.properties.status === status) {
-              this.draw.setFeatureProperty(feature.id, 'visibility', 'none')
+              this.draw.setFeatureProperty(feature.id, 'visibility', 'none');
             }
-          })
+          });
         } else if (hidden.incomplete) {
-          this.draw.setFeatureProperty(feature.id, 'visibility', 'none')
+          this.draw.setFeatureProperty(feature.id, 'visibility', 'none');
         } else {
-          this.draw.setFeatureProperty(feature.id, 'visibility', null)
+          this.draw.setFeatureProperty(feature.id, 'visibility', null);
         }
-      })
+      });
     }
   },
 
@@ -279,7 +279,7 @@ export const Map = React.createClass({
   },
 
   toggleVisibility: function (status) {
-    this.props.dispatch(toggleVisibility(status))
+    this.props.dispatch(toggleVisibility(status));
   },
 
   render: function () {
