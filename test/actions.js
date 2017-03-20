@@ -9,7 +9,7 @@ const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 test('save', function (t) {
-  t.test('', function (st) {
+  t.test('creates SAVE actions', function (st) {
     var scope = nock('http://localhost:4030/')
       .post('/commit')
       .reply(200, { body: 'ok' });
