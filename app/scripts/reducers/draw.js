@@ -16,9 +16,9 @@ const draw = (state = initial, action) => {
         state.hidden = state.hidden.length ? [] : ['complete', 'incomplete', 'edited'];
         return Object.assign({}, state);
       } else if (state.hidden.indexOf(status) > -1) {
-        delete state.hidden.splice(state.hidden.indexOf(status), 1)
+        delete state.hidden.splice(state.hidden.indexOf(status), 1);
       } else {
-        state.hidden.push(status)
+        state.hidden.push(status);
       }
       return Object.assign({}, state);
     default:

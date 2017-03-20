@@ -297,7 +297,7 @@ export const Map = React.createClass({
     const statuses = uniq(selectedFeatures.map(d => d.properties.status || INCOMPLETE));
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
-    const hidden = this.props.draw.hidden
+    const hidden = this.props.draw.hidden;
 
     return (
       <div className='map__container' ref={this.initMap} id={id}>
