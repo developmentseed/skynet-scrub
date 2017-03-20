@@ -2,7 +2,7 @@ import { CHANGE_DRAW_MODE, TOGGLE_VISIBILITY } from '../actions';
 
 const initial = {
   mode: null,
-  hidden: {}
+  hidden: []
 };
 
 const draw = (state = initial, action) => {
@@ -11,10 +11,14 @@ const draw = (state = initial, action) => {
       return { mode: action.data };
     case TOGGLE_VISIBILITY:
       const status = action.data;
-      if (state.hidden[status]) {
-        delete state.hidden[status];
+
+      if (status === 'all') {
+        state.hidden = state.hidden.length ? [] : ['complete', 'incomplete', 'edited'];
+        return Object.assign({}, state);
+      } else if (state.hidden.indexOf(status) > -1) {
+        delete state.hidden.splice(state.hidden.indexOf(status), 1)
       } else {
-        state.hidden[status] = true;
+        state.hidden.push(status)
       }
       return Object.assign({}, state);
     default:

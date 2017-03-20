@@ -128,7 +128,7 @@ export const Map = React.createClass({
       this.props.dispatch(completeMapUpdate());
     }
 
-    const hiddenLines = Object.keys(nextProps.draw.hidden);
+    const hiddenLines = nextProps.draw.hidden;
 
     const hideLine = (featureId) => {
       this.draw.setFeatureProperty(featureId, 'visibility', 'none');
@@ -297,33 +297,45 @@ export const Map = React.createClass({
     const statuses = uniq(selectedFeatures.map(d => d.properties.status || INCOMPLETE));
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
+    const hidden = this.props.draw.hidden
+
     return (
       <div className='map__container' ref={this.initMap} id={id}>
-        <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
-        <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
-        <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
-        {selectedFeatures.length ? (
-          <select value={status} onChange={this.setLineStatus}>
-            {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-            <option value={INCOMPLETE}>Incomplete</option>
-            <option value={EDITED}>Edited</option>
-            <option value={COMPLETE}>Complete</option>
-          </select>
-        ) : null}
+        <div className='menubar'>
+          <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
+          <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
+          <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+          {selectedFeatures.length ? (
+            <select value={status} onChange={this.setLineStatus}>
+              {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+              <option value={INCOMPLETE}>Incomplete</option>
+              <option value={EDITED}>Edited</option>
+              <option value={COMPLETE}>Complete</option>
+            </select>
+          ) : null}
 
-        visibility:
+          <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+          {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+          {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+        </div>
 
-        <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
-          Incomplete
-        </button>
+        <div className='tools'>
+          <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+            Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}
+          </button>
 
-        <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
-          Complete
-        </button>
+          <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+            Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}
+          </button>
 
-        <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
-        {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
-        {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+          <button onClick={this.toggleVisibility.bind(this, EDITED)}>
+            In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}
+          </button>
+
+          <button onClick={this.toggleVisibility.bind(this, 'all')}>
+            All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
+          </button>
+        </div>
       </div>
     );
   },
