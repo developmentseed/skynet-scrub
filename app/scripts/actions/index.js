@@ -117,7 +117,7 @@ export function save (past, lastHistoryId) {
   if (isEmpty(payload.deleted) && isEmpty(payload.edited)) return { type: null };
   return (dispatch) => {
     dispatch(requestSave({ inflight: true, error: null }));
-    fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
+    return fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
       .then(checkStatus)
       .then(response => {
         const historyId = past[past.length - 1].historyId;

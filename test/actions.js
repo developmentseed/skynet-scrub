@@ -3,24 +3,50 @@ import nock from 'nock';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 
-import { save } from '../scripts/actions';
+import { save } from '../app/scripts/actions';
 
-const middlewares = [ thunk ]
-const mockStore = configureMockStore(middlewares)
+const middlewares = [thunk];
+const mockStore = configureMockStore(middlewares);
 
 test('save', function (t) {
-  afterEach(() => {
-    nock.cleanAll();
+  t.test('', function (st) {
+    var scope = nock('http://localhost:4030/')
+      .post('/commit')
+      .reply(200, { body: 'ok' });
+
+    const store = mockStore({});
+    const selectionArray = [{
+      historyId: 'initial',
+      selection: [
+        {
+          id: '1',
+          redo: {
+            id: '',
+            type: 'Feature',
+            geometry: {},
+            properties: { status: 'incomplete' }
+          },
+          undo: {
+            id: '',
+            type: 'Feature',
+            geometry: {},
+            properties: { status: 'edited' }
+          }
+        }
+      ]
+    }];
+
+    const expectedActions = JSON.stringify([
+      { type: 'SAVE', data: { inflight: true, error: null } },
+      { type: 'SAVE', data: { historyId: 'initial', inflight: false, error: null, success: true } }
+    ]);
+
+    return store.dispatch(save(selectionArray)).then(() => {
+      t.equal(JSON.stringify(store.getActions()), expectedActions);
+      st.end();
+    });
   });
 
-  t.test('', function (t) {
-    const store = mockStore({})
-    const past
-    const historyId
-
-    return store.dispatch(actions.save(past, historyId)).then(() => {
-      expect(store.getActions()).toEqual(expectedActions);
-      t.end();
-    })
-  });
+  nock.cleanAll();
+  t.end();
 });
