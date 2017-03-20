@@ -13,8 +13,10 @@ import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
-  completeMapUpdate, changeDrawMode } from '../../actions';
+import {
+  updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
+  completeMapUpdate, changeDrawMode, toggleVisibility
+} from '../../actions';
 
 const SPLIT = 'split';
 const COMPLETE = 'complete';
@@ -124,6 +126,23 @@ export const Map = React.createClass({
         }
       });
       this.props.dispatch(completeMapUpdate());
+    }
+
+    const hidden = Object.keys(nextProps.draw.hidden);
+    if (hidden.length) {
+      this.draw.getAll().features.forEach((feature) => {
+        if (feature.properties.status) {
+          hidden.forEach((status) => {
+            if (feature.properties.status === status) {
+              this.draw.setFeatureProperty(feature.id, 'visibility', 'none')
+            }
+          })
+        } else if (hidden.incomplete) {
+          this.draw.setFeatureProperty(feature.id, 'visibility', 'none')
+        } else {
+          this.draw.setFeatureProperty(feature.id, 'visibility', null)
+        }
+      })
     }
   },
 
@@ -259,6 +278,10 @@ export const Map = React.createClass({
     this.handleUpdate(updatedFeatures);
   },
 
+  toggleVisibility: function (status) {
+    this.props.dispatch(toggleVisibility(status))
+  },
+
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -281,6 +304,17 @@ export const Map = React.createClass({
             <option value={COMPLETE}>Complete</option>
           </select>
         ) : null}
+
+        visibility:
+
+        <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+          Incomplete
+        </button>
+
+        <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+          Complete
+        </button>
+
         <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
         {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
         {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
