@@ -2,7 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import c from 'classnames';
-import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
@@ -96,13 +96,11 @@ export const Map = React.createClass({
   },
 
   expandMode: function (options) {
-    const selected = this.draw.getSelected();
+    const lineString = this.draw.getSelected().features[0];
     const selectedPoint = this.draw.getSelectedPoints().features[0];
     const mode = this.draw.getMode();
-    
-    if (mode === 'direct_select' && selected.features.length) {
-      const lineString = selected.features[0];
-      const features = this.draw.getAll().features
+
+    if (mode === 'direct_select' && lineString && selectedPoint) {
       this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
     }
   },
@@ -220,6 +218,7 @@ export const Map = React.createClass({
       // e
       case (69):
         this.expandMode();
+        break;
 
       default:
         isShortcut = false;
@@ -233,6 +232,7 @@ export const Map = React.createClass({
   },
 
   handleCreate: function (features) {
+    console.log('handleCreate', features);
     features.forEach(this.markAsEdited);
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
@@ -289,6 +289,7 @@ export const Map = React.createClass({
     // only mark line status as edited if it has no prior status
     if (!feature.properties.status) {
       feature.properties.status = EDITED;
+      console.log('feature', feature);
       this.draw.add(feature);
     }
   },
