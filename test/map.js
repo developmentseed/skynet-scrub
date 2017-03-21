@@ -24,8 +24,12 @@ function setup (options) {
       present: { historyId: 'initial' },
       future: []
     },
+    map: {
+      showExistingRoads: false
+    },
     draw: {
-      mode: null
+      mode: null,
+      hidden: []
     },
     save: {}
   }, options);

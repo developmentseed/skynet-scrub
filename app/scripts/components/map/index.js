@@ -9,13 +9,15 @@ import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
-import { environment } from '../../config';
+import { environment, existingRoadsSource } from '../../config';
 import window, { mapboxgl, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
-import { updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
-  completeMapUpdate, changeDrawMode } from '../../actions';
+import {
+  updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
+  completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
+} from '../../actions';
 
 const SPLIT = 'split';
 const COMPLETE = 'complete';
@@ -58,7 +60,22 @@ export const Map = React.createClass({
         // internal state used to track "previous state" of edited geometry
         this.setState({selected: e.features});
       });
+
       this.map.on('load', (e) => {
+        this.map.addSource('network', {
+          type: 'vector',
+          tiles: [existingRoadsSource]
+        });
+        this.map.addLayer({
+          id: 'network',
+          source: 'network',
+          type: 'line',
+          paint: {
+            'line-color': '#00ffff'
+          },
+          'source-layer': 'network'
+        });
+
         this.loadMapData(e);
       });
       this.map.on('moveend', (e) => {
@@ -142,6 +159,37 @@ export const Map = React.createClass({
       });
       this.props.dispatch(completeMapUpdate());
     }
+
+    // existing roads visibility
+    if (nextProps.map.showExistingRoads) {
+      this.map.setLayoutProperty('network', 'visibility', 'visible');
+    } else {
+      this.map.setLayoutProperty('network', 'visibility', 'none');
+    }
+
+    // line visibility
+    const hiddenLines = nextProps.draw.hidden;
+
+    this.draw.getAll().features.forEach((feature, i) => {
+      const visible = feature.properties.visibility !== 'none';
+      const featureStatus = feature.properties.status ? feature.properties.status : 'incomplete';
+
+      if (!hiddenLines.length) {
+        if (!visible) this.showLine(feature.id);
+      } else if (!visible && hiddenLines.indexOf(featureStatus) === -1) {
+        this.showLine(feature.id);
+      } else if (visible && hiddenLines.indexOf(featureStatus) > -1) {
+        this.hideLine(feature.id);
+      }
+    });
+  },
+
+  hideLine: function (featureId) {
+    this.draw.setFeatureProperty(featureId, 'visibility', 'none');
+  },
+
+  showLine: function (featureId) {
+    this.draw.setFeatureProperty(featureId, 'visibility', null);
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
@@ -234,6 +282,7 @@ export const Map = React.createClass({
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
     );
+
     // only fetch new data if we haven't requested this tile before
     if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
       this.props.dispatch(fetchMapData(coverTile));
@@ -281,6 +330,14 @@ export const Map = React.createClass({
     this.handleUpdate(updatedFeatures);
   },
 
+  toggleVisibility: function (status) {
+    this.props.dispatch(toggleVisibility(status));
+  },
+
+  toggleExistingRoads: function () {
+    this.props.dispatch(toggleExistingRoads());
+  },
+
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -290,22 +347,54 @@ export const Map = React.createClass({
     const statuses = uniq(selectedFeatures.map(d => d.properties.status || INCOMPLETE));
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
+    const hidden = this.props.draw.hidden;
+    const showExistingRoads = this.props.map.showExistingRoads;
+
     return (
       <div className='map__container' ref={this.initMap} id={id}>
-        <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
-        <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
-        <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
-        {selectedFeatures.length ? (
-          <select value={status} onChange={this.setLineStatus}>
-            {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-            <option value={INCOMPLETE}>Incomplete</option>
-            <option value={EDITED}>Edited</option>
-            <option value={COMPLETE}>Complete</option>
-          </select>
-        ) : null}
-        <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
-        {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
-        {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+        <div className='menubar'>
+          <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
+          <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
+          {selectedFeatures.length ? (
+            <select value={status} onChange={this.setLineStatus}>
+              {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+              <option value={INCOMPLETE}>Incomplete</option>
+              <option value={EDITED}>Edited</option>
+              <option value={COMPLETE}>Complete</option>
+            </select>
+          ) : null}
+
+          <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
+          {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+          {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+        </div>
+
+        <div className='tool-bar'>
+          <div className='tools'>
+            <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+          </div>
+          <div className='toggle'>
+            <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+              Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}
+            </button>
+
+            <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+              Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}
+            </button>
+
+            <button onClick={this.toggleVisibility.bind(this, EDITED)}>
+              In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}
+            </button>
+
+            <button onClick={this.toggleVisibility.bind(this, 'all')}>
+              All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
+            </button>
+
+            <button onClick={this.toggleExistingRoads}>
+              Existing roads {showExistingRoads ? '(showing)' : '(hidden)'}
+            </button>
+          </div>
+        </div>
       </div>
     );
   },

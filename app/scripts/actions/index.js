@@ -15,6 +15,8 @@ export const REQUEST_TILE = 'REQUEST_TILE';
 export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
 export const LOCAL_STORAGE = 'LOCAL_STORAGE';
 export const FAST_FORWARD = 'FAST_FORWARD';
+export const TOGGLE_VISIBILITY = 'TOGGLE_VISIBILITY';
+export const TOGGLE_EXISTING_ROADS = 'TOGGLE_EXISTING_ROADS';
 
 /**
  * Updates the selection store with a new array of changes
@@ -73,6 +75,14 @@ export function changeDrawMode (data) {
   return { type: CHANGE_DRAW_MODE, data };
 }
 
+export function toggleVisibility (data) {
+  return { type: TOGGLE_VISIBILITY, data };
+}
+
+export function toggleExistingRoads () {
+  return { type: TOGGLE_EXISTING_ROADS };
+}
+
 /**
   * Tracks already requested tiles
   * @param {string} tile of the form x/y/z
@@ -117,7 +127,7 @@ export function save (past, lastHistoryId) {
   if (isEmpty(payload.deleted) && isEmpty(payload.edited)) return { type: null };
   return (dispatch) => {
     dispatch(requestSave({ inflight: true, error: null }));
-    fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
+    return fetch(`${config.baseUrl}/commit`, { headers, method: 'POST', body: JSON.stringify(payload) })
       .then(checkStatus)
       .then(response => {
         const historyId = past[past.length - 1].historyId;
