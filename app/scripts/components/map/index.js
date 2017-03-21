@@ -83,13 +83,9 @@ export const Map = React.createClass({
       });
       this.map.on('click', (e) => {
         switch (this.props.draw.mode) {
-          case SPLIT: 
-            this.splitLine(e);
-          default:
-            console.log(e)
+          case SPLIT: this.splitLine(e); break;
         }
       });
-
       // development-only logs for when draw switches modes
       if (environment === 'development') {
         this.map.on('draw.modechange', (e) => {
