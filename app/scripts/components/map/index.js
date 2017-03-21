@@ -2,6 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import c from 'classnames';
+import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
@@ -9,7 +10,7 @@ import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment } from '../../config';
-import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
+import window, { mapboxgl, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
@@ -65,15 +66,31 @@ export const Map = React.createClass({
       });
       this.map.on('click', (e) => {
         switch (this.props.draw.mode) {
-          case SPLIT: this.splitLine(e); break;
+          case SPLIT: 
+            this.splitLine(e);
+          default:
+            console.log(e)
         }
       });
+
       // development-only logs for when draw switches modes
       if (environment === 'development') {
         this.map.on('draw.modechange', (e) => {
           console.log('mode', e.mode);
         });
       }
+    }
+  },
+
+  expandMode: function (options) {
+    const selected = this.draw.getSelected();
+    const selectedPoint = this.draw.getSelectedPoints().features[0];
+    const mode = this.draw.getMode();
+    
+    if (mode === 'direct_select' && selected.features.length) {
+      const lineString = selected.features[0];
+      const features = this.draw.getAll().features
+      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
     }
   },
 
@@ -143,8 +160,8 @@ export const Map = React.createClass({
     // meta key can take the place of ctrl on osx
     const ctrl = ctrlKey || metaKey;
     let isShortcut = true;
-    switch (keyCode) {
 
+    switch (keyCode) {
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
@@ -155,6 +172,11 @@ export const Map = React.createClass({
       case (83):
         if (ctrl) this.save();
         break;
+
+      // e
+      case (69):
+        this.expandMode();
+
       default:
         isShortcut = false;
     }
