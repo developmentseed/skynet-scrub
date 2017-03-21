@@ -15,6 +15,7 @@ export const REQUEST_TILE = 'REQUEST_TILE';
 export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
 export const LOCAL_STORAGE = 'LOCAL_STORAGE';
 export const FAST_FORWARD = 'FAST_FORWARD';
+export const TOGGLE_VISIBILITY = 'TOGGLE_VISIBILITY';
 
 /**
  * Updates the selection store with a new array of changes
@@ -71,6 +72,10 @@ export function updateLocalStore (actions) {
 // which we don't need to manage.
 export function changeDrawMode (data) {
   return { type: CHANGE_DRAW_MODE, data };
+}
+
+export function toggleVisibility (data) {
+  return { type: TOGGLE_VISIBILITY, data };
 }
 
 /**

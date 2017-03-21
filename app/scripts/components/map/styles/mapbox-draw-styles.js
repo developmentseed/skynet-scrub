@@ -4,7 +4,7 @@ const styles = [
   {
     'id': 'gl-draw-line-inactive',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -17,7 +17,7 @@ const styles = [
   {
     'id': 'gl-draw-line-active',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -32,7 +32,7 @@ const styles = [
   {
     'id': 'gl-draw-line-inactive-edited',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'edited']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'edited'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -45,7 +45,7 @@ const styles = [
   {
     'id': 'gl-draw-line-active-edited',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'edited']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'edited'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -59,7 +59,7 @@ const styles = [
   {
     'id': 'gl-draw-line-inactive-complete',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'complete']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'false'], ['==', 'user_status', 'complete'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -72,7 +72,7 @@ const styles = [
   {
     'id': 'gl-draw-line-active-complete',
     'type': 'line',
-    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'complete']],
+    'filter': ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static'], ['==', 'active', 'true'], ['==', 'user_status', 'complete'], ['!=', 'user_visibility', 'none']],
     'layout': {
       'line-cap': 'round',
       'line-join': 'round'
@@ -129,6 +129,16 @@ const styles = [
     'paint': {
       'circle-radius': 4,
       'circle-color': '#D20C0C'
+    }
+  },
+  // line visibility
+  {
+    'id': 'gl-draw-visibility',
+    'type': 'line',
+    'filter': ['==', 'user_visibility', 'none'],
+    'visibility': 'none',
+    'paint': {
+      'line-opacity': 0
     }
   },
 
