@@ -1,9 +1,83 @@
 .map__container {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .disabled {
   opacity: 0.4;
   pointer-events: none;
 }
+
+.toggle__item {
+  margin-bottom: .8em;
+  @extend .clearfix;
+  a {
+    color: $base-grey;
+  }
+}
+
+.visibility {
+  background-image: url(../graphics/layout/icon-visibility.svg);
+  background-size: 16px 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: .6em;
+  display: block;
+  float: left;
+  margin-top: .2em;
+  span {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    clip: rect(0,0,0,0);
+  }
+}
+
+.line-description {
+  float: left;
+  width: 78%;
+  line-height: 1.6em;
+}
+
+.tool-bar {
+  position: absolute;
+  background-color: #fff;
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+  width: 12em;
+  left: 3em;
+  top: 4em;
+  z-index: 5;
+  .tools {
+    padding: 1em 1.5em;
+    border-bottom: 1px solid $lightest-grey;
+    margin-bottom: .5em;
+  }
+  .toggle {
+    padding: 1em 1.5em;
+
+  }
+}
+
+.tool__item {
+  border: 1px solid rgba(86, 216, 232, .53);
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: .5em;
+  margin-bottom: .5em;
+  a {
+    padding: .5em;
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
