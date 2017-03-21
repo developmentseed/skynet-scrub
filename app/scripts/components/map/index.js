@@ -8,7 +8,7 @@ import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
-import { environment } from '../../config';
+import { environment, existingRoadsSource } from '../../config';
 import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
@@ -63,7 +63,7 @@ export const Map = React.createClass({
       this.map.on('load', (e) => {
         this.map.addSource('network', {
           type: 'vector',
-          tiles: ['http://openroads-tiles.s3-website-us-east-1.amazonaws.com/{z}/{x}/{y}.vector.pbf']
+          tiles: [existingRoadsSource]
         });
         this.map.addLayer({
           id: 'network',
