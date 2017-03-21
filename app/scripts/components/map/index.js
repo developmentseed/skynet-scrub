@@ -367,6 +367,10 @@ export const Map = React.createClass({
             <button onClick={this.toggleVisibility.bind(this, 'all')}>
               All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
             </button>
+
+            <button onClick={this.toggleExistingRoads}>
+              Existing roads {showExistingRoads ? '(showing)' : '(hidden)'}
+            </button>
           </div>
         </div>
       </div>
