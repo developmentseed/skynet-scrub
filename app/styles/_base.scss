@@ -21,6 +21,7 @@ html,
 body {
   height: 100%;
   overflow: hidden;
+  font-family: $base-font-family;
 }
 
 .full, .main, .app {
