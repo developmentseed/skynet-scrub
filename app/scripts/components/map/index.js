@@ -8,14 +8,14 @@ import lineSlice from '@turf/line-slice';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
-import { environment } from '../../config';
+import { environment, existingRoadsSource } from '../../config';
 import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import {
   updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
-  completeMapUpdate, changeDrawMode, toggleVisibility
+  completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
 const SPLIT = 'split';
@@ -59,7 +59,22 @@ export const Map = React.createClass({
         // internal state used to track "previous state" of edited geometry
         this.setState({selected: e.features});
       });
+
       this.map.on('load', (e) => {
+        this.map.addSource('network', {
+          type: 'vector',
+          tiles: [existingRoadsSource]
+        });
+        this.map.addLayer({
+          id: 'network',
+          source: 'network',
+          type: 'line',
+          paint: {
+            'line-color': '#00ffff'
+          },
+          'source-layer': 'network'
+        });
+
         this.loadMapData(e);
       });
       this.map.on('moveend', (e) => {
@@ -128,6 +143,14 @@ export const Map = React.createClass({
       this.props.dispatch(completeMapUpdate());
     }
 
+    // existing roads visibility
+    if (nextProps.map.showExistingRoads) {
+      this.map.setLayoutProperty('network', 'visibility', 'visible');
+    } else {
+      this.map.setLayoutProperty('network', 'visibility', 'none');
+    }
+
+    // line visibility
     const hiddenLines = nextProps.draw.hidden;
 
     this.draw.getAll().features.forEach((feature, i) => {
@@ -237,6 +260,7 @@ export const Map = React.createClass({
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
     );
+
     // only fetch new data if we haven't requested this tile before
     if (!this.props.map.requestedTiles.has(coverTile.join('/'))) {
       this.props.dispatch(fetchMapData(coverTile));
@@ -288,6 +312,10 @@ export const Map = React.createClass({
     this.props.dispatch(toggleVisibility(status));
   },
 
+  toggleExistingRoads: function () {
+    this.props.dispatch(toggleExistingRoads());
+  },
+
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -298,6 +326,7 @@ export const Map = React.createClass({
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
     const hidden = this.props.draw.hidden;
+    const showExistingRoads = this.props.map.showExistingRoads;
 
     return (
       <div className='map__container' ref={this.initMap} id={id}>
@@ -337,6 +366,10 @@ export const Map = React.createClass({
 
             <button onClick={this.toggleVisibility.bind(this, 'all')}>
               All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
+            </button>
+
+            <button onClick={this.toggleExistingRoads}>
+              Existing roads {showExistingRoads ? '(showing)' : '(hidden)'}
             </button>
           </div>
         </div>
