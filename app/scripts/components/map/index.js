@@ -304,7 +304,6 @@ export const Map = React.createClass({
         <div className='menubar'>
           <button className={c({disabled: !past.length})} onClick={this.undo}>Undo</button>
           <button className={c({disabled: !future.length})} onClick={this.redo}>Redo</button>
-          <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
           {selectedFeatures.length ? (
             <select value={status} onChange={this.setLineStatus}>
               {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
@@ -319,22 +318,27 @@ export const Map = React.createClass({
           {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
         </div>
 
-        <div className='tools'>
-          <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
-            Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}
-          </button>
+        <div className='tool-bar'>
+          <div className='tools'>
+            <button className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode}>Split</button>
+          </div>
+          <div className='toggle'>
+            <button onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+              Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}
+            </button>
 
-          <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
-            Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}
-          </button>
+            <button onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+              Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}
+            </button>
 
-          <button onClick={this.toggleVisibility.bind(this, EDITED)}>
-            In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}
-          </button>
+            <button onClick={this.toggleVisibility.bind(this, EDITED)}>
+              In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}
+            </button>
 
-          <button onClick={this.toggleVisibility.bind(this, 'all')}>
-            All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
-          </button>
+            <button onClick={this.toggleVisibility.bind(this, 'all')}>
+              All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}
+            </button>
+          </div>
         </div>
       </div>
     );
