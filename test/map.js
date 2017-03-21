@@ -25,7 +25,8 @@ function setup (options) {
       future: []
     },
     draw: {
-      mode: null
+      mode: null,
+      hidden: []
     },
     save: {}
   }, options);

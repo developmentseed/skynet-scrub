@@ -130,26 +130,26 @@ export const Map = React.createClass({
 
     const hiddenLines = nextProps.draw.hidden;
 
-    const hideLine = (featureId) => {
-      this.draw.setFeatureProperty(featureId, 'visibility', 'none');
-    };
-
-    const showLine = (featureId) => {
-      this.draw.setFeatureProperty(featureId, 'visibility', null);
-    };
-
     this.draw.getAll().features.forEach((feature, i) => {
       const visible = feature.properties.visibility !== 'none';
       const featureStatus = feature.properties.status ? feature.properties.status : 'incomplete';
 
       if (!hiddenLines.length) {
-        if (!visible) showLine(feature.id);
+        if (!visible) this.showLine(feature.id);
       } else if (!visible && hiddenLines.indexOf(featureStatus) === -1) {
-        showLine(feature.id);
+        this.showLine(feature.id);
       } else if (visible && hiddenLines.indexOf(featureStatus) > -1) {
-        hideLine(feature.id);
+        this.hideLine(feature.id);
       }
     });
+  },
+
+  hideLine: function (featureId) {
+    this.draw.setFeatureProperty(featureId, 'visibility', 'none');
+  },
+
+  showLine: function (featureId) {
+    this.draw.setFeatureProperty(featureId, 'visibility', null);
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
