@@ -14,7 +14,7 @@ const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
 import {
-  updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData, 
+  updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
@@ -63,7 +63,7 @@ export const Map = React.createClass({
       this.map.on('load', (e) => {
         this.map.addSource('network', {
           type: 'vector',
-          tiles: ['http://openroads-tiles.s3-website-us-east-1.amazonaws.com/{z}/{x}/{y}.vector.pbf'],
+          tiles: ['http://openroads-tiles.s3-website-us-east-1.amazonaws.com/{z}/{x}/{y}.vector.pbf']
         });
         this.map.addLayer({
           id: 'network',
@@ -73,7 +73,7 @@ export const Map = React.createClass({
             'line-color': '#00ffff'
           },
           'source-layer': 'network'
-        })
+        });
 
         this.loadMapData(e);
       });
