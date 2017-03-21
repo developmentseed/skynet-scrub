@@ -9,7 +9,7 @@ const initial = {
 const map = (state = initial, action) => {
   switch (action.type) {
     case COMPLETE_MAP_UPDATE:
-      return Object.assign({}, state, { requestedTiles: state.requestedTiles });
+      return Object.assign({}, state, { tempStore: null });
     case UPDATE_MAP_DATA:
       return Object.assign({}, state, { tempStore: action.data });
     case TOGGLE_EXISTING_ROADS:
