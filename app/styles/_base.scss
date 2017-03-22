@@ -24,6 +24,19 @@ body {
   font-family: $base-font-family;
 }
 
+button {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0;
+}
+
+.row {
+  @extend .clearfix;
+  max-width: 1280px;
+  padding: 0 64px;
+}
+
 .full, .main, .app {
   height: inherit;
 }
@@ -41,3 +54,4 @@ body {
   bottom: 0;
   height: 1em;
 }
+
