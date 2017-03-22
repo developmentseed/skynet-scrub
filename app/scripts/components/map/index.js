@@ -21,7 +21,7 @@ import {
 const SPLIT = 'split';
 const COMPLETE = 'complete';
 const INCOMPLETE = 'incomplete';
-const EDITED = 'in progress';
+const EDITED = 'edited';
 const MULTIPLE = 'multiple';
 
 const noGl = (
@@ -71,8 +71,8 @@ export const Map = React.createClass({
           source: 'network',
           type: 'line',
           paint: {
-            'line-color': '#3B9FFF',
-            'line-width': 2
+            'line-color': 'rgba(59, 159, 255, .5)',
+            'line-width': 3
           },
           'source-layer': 'network'
         });

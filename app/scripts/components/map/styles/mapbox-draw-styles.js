@@ -10,8 +10,8 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#D1D1D1',
-      'line-width': 4
+      'line-color': 'rgba(209, 209, 209, .7)',
+      'line-width': 3
     }
   },
   {
@@ -23,7 +23,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#D1D1D1',
+      'line-color': 'rgba(209, 209, 209, .7)',
       'line-dasharray': [0.2, 2],
       'line-width': 3
     }
@@ -38,8 +38,8 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#FFD23B',
-      'line-width': 4
+      'line-color': 'rgba(255, 210, 59, .9)',
+      'line-width': 3
     }
   },
   {
@@ -51,7 +51,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#FFD23B',
+      'line-color': 'rgba(255, 210, 59, .9)',
       'line-dasharray': [0.2, 2],
       'line-width': 3
     }
@@ -66,7 +66,7 @@ const styles = [
     },
     'paint': {
       'line-color': '#5EED94',
-      'line-width': 4
+      'line-width': 3
     }
   },
   {
@@ -99,7 +99,9 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static'], ['==', 'active', 'true']],
     'paint': {
       'circle-radius': 7,
-      'circle-color': '#3E3A3A'
+      'circle-color': '#3E3A3A',
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#3E3A3A'
     }
   },
   // vertex points
