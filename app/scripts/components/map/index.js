@@ -335,15 +335,14 @@ export const Map = React.createClass({
             <ul>
               <li>
                 <label>Line Status</label>
-                <div className='select-wrapper'>
-                  {selectedFeatures.length ? (
-                    <select value={status} onChange={this.setLineStatus}>
-                      {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-                      <option value={INCOMPLETE}>Incomplete</option>
-                      <option value={EDITED}>Edited</option>
-                      <option value={COMPLETE}>Complete</option>
-                    </select>
-                  ) : null}
+                <div className={c('select-wrapper', { disabled: !selectedFeatures.length })}>
+                  <select value={status || ''} onChange={this.setLineStatus}>
+                    {!selectedFeatures.length && <option value=''></option>}
+                    {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+                    <option value={INCOMPLETE}>Incomplete</option>
+                    <option value={EDITED}>Edited</option>
+                    <option value={COMPLETE}>Complete</option>
+                  </select>
                 </div>
               </li>
               <li>
