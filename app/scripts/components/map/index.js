@@ -337,7 +337,7 @@ export const Map = React.createClass({
                 <a href="#">
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
-              </li> 
+              </li>
               <li className='tool--line-add tool__item'>
                 <a href="#">
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
