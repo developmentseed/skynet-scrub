@@ -16,6 +16,7 @@ export const CHANGE_DRAW_MODE = 'CHANGE_DRAW_MODE';
 export const LOCAL_STORAGE = 'LOCAL_STORAGE';
 export const FAST_FORWARD = 'FAST_FORWARD';
 export const TOGGLE_VISIBILITY = 'TOGGLE_VISIBILITY';
+export const TOGGLE_EXISTING_ROADS = 'TOGGLE_EXISTING_ROADS';
 
 /**
  * Updates the selection store with a new array of changes
@@ -76,6 +77,10 @@ export function changeDrawMode (data) {
 
 export function toggleVisibility (data) {
   return { type: TOGGLE_VISIBILITY, data };
+}
+
+export function toggleExistingRoads () {
+  return { type: TOGGLE_EXISTING_ROADS };
 }
 
 /**
