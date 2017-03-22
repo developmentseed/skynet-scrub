@@ -21,7 +21,7 @@ import {
 const SPLIT = 'split';
 const COMPLETE = 'complete';
 const INCOMPLETE = 'incomplete';
-const INPROGRESS = 'in progress';
+const EDITED = 'in progress';
 const MULTIPLE = 'multiple';
 
 const noGl = (
@@ -348,7 +348,7 @@ export const Map = React.createClass({
                     {!selectedFeatures.length && <option value=''></option>}
                     {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
                     <option value={INCOMPLETE}>Incomplete</option>
-                    <option value={INPROGRESS}>In Progress</option>
+                    <option value={EDITED}>In Progress</option>
                     <option value={COMPLETE}>Complete</option>
                   </select>
                 </div>
@@ -413,9 +413,9 @@ export const Map = React.createClass({
                 </a>
               </li>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, INPROGRESS)}>
+                <a href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>In Progress {hidden.indexOf(INPROGRESS) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line-description'>In Progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}</span>
                 </a>
               </li>
             </ul>
