@@ -409,7 +409,7 @@ export const Map = React.createClass({
               <li className='toggle__item'>
                 <a href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>Incomplete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line-description'>Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
                 </a>
               </li>
               <li className='toggle__item'>
