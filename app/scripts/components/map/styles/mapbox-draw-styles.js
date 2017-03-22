@@ -10,7 +10,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#D20C0C',
+      'line-color': '#D1D1D1',
       'line-width': 4
     }
   },
@@ -23,7 +23,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#D20C0C',
+      'line-color': '#D1D1D1',
       'line-dasharray': [0.2, 2],
       'line-width': 3
     }
@@ -38,7 +38,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#0000ff',
+      'line-color': '#FFD23B',
       'line-width': 4
     }
   },
@@ -51,7 +51,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#0000ff',
+      'line-color': '#FFD23B',
       'line-dasharray': [0.2, 2],
       'line-width': 3
     }
@@ -65,7 +65,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#00ff00',
+      'line-color': '#5EED94',
       'line-width': 4
     }
   },
@@ -78,7 +78,7 @@ const styles = [
       'line-join': 'round'
     },
     'paint': {
-      'line-color': '#00ff00',
+      'line-color': '#5EED94',
       'line-dasharray': [0.2, 2],
       'line-width': 3
     }
@@ -90,7 +90,7 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static'], ['==', 'active', 'false']],
     'paint': {
       'circle-radius': 6,
-      'circle-color': '#FFF'
+      'circle-color': '#3E3A3A'
     }
   },
   {
@@ -99,7 +99,7 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static'], ['==', 'active', 'true']],
     'paint': {
       'circle-radius': 7,
-      'circle-color': '#FFF'
+      'circle-color': '#3E3A3A'
     }
   },
   // vertex points
@@ -109,7 +109,7 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static'], ['==', 'active', 'false']],
     'paint': {
       'circle-radius': 4,
-      'circle-color': '#D20C0C'
+      'circle-color': '#FFF'
     }
   },
   {
@@ -128,7 +128,7 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'midpoint'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
     'paint': {
       'circle-radius': 4,
-      'circle-color': '#D20C0C'
+      'circle-color': '#FFF'
     }
   },
   // line visibility
