@@ -22,6 +22,8 @@ body {
   height: 100%;
   overflow: hidden;
   font-family: $base-font-family;
+  font-weight: $base-font-regular;
+  letter-spacing: .4px;
 }
 
 button {

@@ -71,7 +71,8 @@ export const Map = React.createClass({
           source: 'network',
           type: 'line',
           paint: {
-            'line-color': '#00ffff'
+            'line-color': '#3B9FFF',
+            'line-width': 2
           },
           'source-layer': 'network'
         });
@@ -146,9 +147,9 @@ export const Map = React.createClass({
 
     // existing roads visibility
     if (nextProps.map.showExistingRoads) {
-      this.map.setLayoutProperty('network', 'visibility', 'visible');
-    } else {
       this.map.setLayoutProperty('network', 'visibility', 'none');
+    } else {
+      this.map.setLayoutProperty('network', 'visibility', 'visible');
     }
 
     // line visibility
@@ -394,28 +395,28 @@ export const Map = React.createClass({
           <fieldset className='toggle'>
             <legend>Predicted Road Layers</legend>
             <ul>
-              <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
+              <li className='toggle__item toggle__all'>
+                <a className={c({showall: hidden.length >= 1})} href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}</span>
+                  <span className='line-description'>All Predicted</span>
                 </a>
               </li>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+                <a className={c({showall: hidden.indexOf(INCOMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line__item line--incomplete line-description'>Incomplete</span>
                 </a>
               </li>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+                <a className={c({showall: hidden.indexOf(EDITED) > -1})} href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>Complete {hidden.indexOf(COMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line-description line__item line--progress'>In Progress</span>
                 </a>
               </li>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
+                <a className={c({showall: hidden.indexOf(COMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>In Progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line-description line__item line--complete'>Complete</span>
                 </a>
               </li>
             </ul>
@@ -424,9 +425,9 @@ export const Map = React.createClass({
             <legend>Existing Road Network Layers</legend>
             <ul>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleExistingRoads}>
+                <a className={c({showall: showExistingRoads})} href="#" onClick={this.toggleExistingRoads}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>Existing roads {showExistingRoads ? '(showing)' : '(hidden)'}</span>
+                  <span className='line__item line--existing line-description'>Existing roads</span>
                 </a>
               </li>
             </ul>
