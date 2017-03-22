@@ -46,12 +46,13 @@ export const Map = React.createClass({
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
-        controls: { trash: true, line_string: true },
         userProperties: true
       });
       this.map.addControl(draw);
       this.draw = draw;
       window.Draw = draw;
+      // TODO: review whether the create and delete listeners fire anywhere now
+      // that we're calling some events programatically
       this.map.on('draw.create', (e) => this.handleCreate(e.features));
       this.map.on('draw.delete', (e) => this.handleDelete(e.features));
       this.map.on('draw.update', (e) => this.handleUpdate(e.features));
@@ -316,6 +317,13 @@ export const Map = React.createClass({
     this.props.dispatch(toggleExistingRoads());
   },
 
+  delete: function () {
+    const { selected } = this.state;
+    this.draw.delete(selected.map(f => f.id));
+    this.handleDelete(selected);
+    this.setState({ selected: [] });
+  },
+
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -361,7 +369,7 @@ export const Map = React.createClass({
           <fieldset className='tools'>
             <legend>Tools</legend>
             <ul>
-              <li className='tool--line tool__item'>
+              <li className='tool--line tool__item' onClick={() => this.draw.changeMode('draw_line_string')}>
                 <a href="#">
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
@@ -376,7 +384,7 @@ export const Map = React.createClass({
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
               </li>
-              <li className='tool--trash tool__item'>
+              <li className='tool--trash tool__item' onClick={this.delete}>
                 <a href="#">
                   <img alt='delete' src='../graphics/layout/icon-trash.svg' />
                 </a>
