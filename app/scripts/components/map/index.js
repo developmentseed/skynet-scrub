@@ -71,7 +71,8 @@ export const Map = React.createClass({
           source: 'network',
           type: 'line',
           paint: {
-            'line-color': '#00ffff'
+            'line-color': '#3B9FFF',
+            'line-width': 2
           },
           'source-layer': 'network'
         });
