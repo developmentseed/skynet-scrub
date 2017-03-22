@@ -21,7 +21,7 @@ import {
 const SPLIT = 'split';
 const COMPLETE = 'complete';
 const INCOMPLETE = 'incomplete';
-const EDITED = 'edited';
+const INPROGRESS = 'in progress';
 const MULTIPLE = 'multiple';
 
 const noGl = (
@@ -341,14 +341,14 @@ export const Map = React.createClass({
         <div className='menubar'>
           <div className='row'>
             <ul>
-              <li>
+              <li className={c({ disabled: !selectedFeatures.length })}>
                 <label>Line Status</label>
-                <div className={c('select-wrapper', { disabled: !selectedFeatures.length })}>
+                <div className={c('select-wrapper')}>
                   <select value={status || ''} onChange={this.setLineStatus}>
                     {!selectedFeatures.length && <option value=''></option>}
                     {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
                     <option value={INCOMPLETE}>Incomplete</option>
-                    <option value={EDITED}>Edited</option>
+                    <option value={INPROGRESS}>In Progress</option>
                     <option value={COMPLETE}>Complete</option>
                   </select>
                 </div>
@@ -413,9 +413,9 @@ export const Map = React.createClass({
                 </a>
               </li>
               <li className='toggle__item'>
-                <a href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
+                <a href="#" onClick={this.toggleVisibility.bind(this, INPROGRESS)}>
                   <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}</span>
+                  <span className='line-description'>In Progress {hidden.indexOf(INPROGRESS) > -1 ? '(hidden)' : '(showing)'}</span>
                 </a>
               </li>
             </ul>
