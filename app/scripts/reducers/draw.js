@@ -8,7 +8,7 @@ const initial = {
 const draw = (state = initial, action) => {
   switch (action.type) {
     case CHANGE_DRAW_MODE:
-      return { mode: action.data };
+      return Object.assign({}, state, { mode: action.data });
     case TOGGLE_VISIBILITY:
       const status = action.data;
 

@@ -1,9 +1,201 @@
 .map__container {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+.menubar {
+  background-color: lighten($lightest-grey, 5%);
+  padding: .7em 0;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, .5);
+  li {
+    display: inline-block;
+    margin-right: 2.5em;
+  }
+  label {
+    color: $grey;
+    font-weight: $base-font-bold;
+    margin-right: .6em;
+  }
 }
 
 .disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   pointer-events: none;
 }
+
+.button {
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+  padding: .3em 1.5em .15em;
+  letter-spacing: .7px;
+  border: 1px solid $blue;
+}
+
+.button-base {
+  color: #fff;
+  text-transform: uppercase;
+  background-color: $blue;
+}
+
+.button--outline {
+  background-color: transparent;
+  border: 1px solid $blue;
+  color: $darker-blue;
+}
+
+.button-redo {
+  position: relative;
+  padding: .3em 2.8em .15em 1.5em;
+  &:after {
+    position: absolute;
+    content: '';
+    background-image: url(../graphics/layout/arrow-right.svg);
+    background-size: 11px 11px;
+    width: 11px;
+    height: 11px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    right: .8em;
+    top: .6em;
+  }
+}
+
+.button-undo {
+  position: relative;
+  margin-right: .8em;
+  padding: .3em 1.5em .15em 2.8em;
+  &:before {
+    position: absolute;
+    content: '';
+    background-image: url(../graphics/layout/arrow-left.svg);
+    background-size: 11px 11px;
+    width: 11px;
+    height: 11px;
+    padding-right: .5em;
+    background-repeat: no-repeat;
+    display: block;
+    display: inline-block;
+    left: .8em;
+    top: .6em;
+  }
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  &:after {
+    position: absolute;
+    content: '';
+    background-image: url(../graphics/layout/chevron-down.svg);
+    background-size: 10px 10px;
+    width: 10px;
+    height: 10px;
+    top: .7em;
+    right: .8em;
+  }
+}
+
+select {
+  background-color: $white;
+  border: 1px solid darken($lightest-grey, 2%);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: .3em 1.5em .15em .8em;
+  min-width: 13em;
+  color: $grey;
+}
+
+.toggle__item {
+  margin-bottom: .8em;
+  @extend .clearfix;
+  a {
+    color: $base-grey;
+  }
+}
+
+.visibility {
+  background-image: url(../graphics/layout/icon-visibility.svg);
+  background-size: 16px 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: .6em;
+  display: block;
+  float: left;
+  margin-top: .2em;
+  span {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    clip: rect(0,0,0,0);
+  }
+}
+
+.line-description {
+  float: left;
+  width: 78%;
+  line-height: 1.6em;
+}
+
+.tool-bar {
+  position: absolute;
+  background-color: #fff;
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+  width: 12em;
+  left: 3em;
+  top: 6em;
+  z-index: 5;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, .2);
+  legend {
+    display: block;
+    padding-top: 1em;
+    color: $dark-grey;
+    line-height: 1.45em;
+  }
+  .tools {
+    padding: 1em 1.5em;
+    border-bottom: 1px solid $lightest-grey;
+    margin-bottom: .5em;
+  }
+  .toggle {
+    padding: 1em 1.5em;
+  }
+}
+
+.tool__item {
+  border: 1px solid rgba(86, 216, 232, .53);
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: .7em;
+  margin-bottom: .3em;
+  a {
+    padding: .5em;
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+  img {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+}
+
+.tool--line-add {
+  a {
+    padding: .3em;
+    width: 25px;
+    height: 25px;
+  }
+  img {
+    width: 25px;
+    height: 25px;
+  }
+}
+
