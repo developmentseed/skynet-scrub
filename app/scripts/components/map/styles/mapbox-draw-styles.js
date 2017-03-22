@@ -118,7 +118,7 @@ const styles = [
     'filter': ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static'], ['==', 'active', 'true']],
     'paint': {
       'circle-radius': 5,
-      'circle-color': '#0F0'
+      'circle-color': '#FFF'
     }
   },
   // midpoints
