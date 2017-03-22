@@ -301,80 +301,89 @@ export const Map = React.createClass({
 
     return (
       <div className='map__container' ref={this.initMap} id={id}>
-        <div className='row'>
-          <div className='menubar'>
-            <button className={c({disabled: !past.length}, 'button button-undo')} onClick={this.undo}>Undo</button>
-            <button className={c({disabled: !future.length}, 'button button-redo')} onClick={this.redo}>Redo</button>
-            {selectedFeatures.length ? (
-              <select value={status} onChange={this.setLineStatus}>
-                {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-                <option value={INCOMPLETE}>Incomplete</option>
-                <option value={EDITED}>Edited</option>
-                <option value={COMPLETE}>Complete</option>
-              </select>
-            ) : null}
-
-            <button className={c({disabled: isSynced})} onClick={this.save} style={{float: 'right', marginRight: '250px'}}>Save</button>
-            {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
-            {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+        <div className='menubar'>
+          <div className='row'>
+            <ul>
+              <li>
+                <label>Line Status</label>
+                <div className='select-wrapper'>
+                  {selectedFeatures.length ? (
+                    <select value={status} onChange={this.setLineStatus}>
+                      {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+                      <option value={INCOMPLETE}>Incomplete</option>
+                      <option value={EDITED}>Edited</option>
+                      <option value={COMPLETE}>Complete</option>
+                    </select>
+                  ) : null}
+                </div>
+              </li>
+              <li>
+                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo</button>
+                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo</button>
+              </li>
+              <li>
+                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>Save Changes</button>
+                {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+                {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+              </li>
+            </ul>
           </div>
-
-          <div className='tool-bar'>
-            <div className='tools'>
-              <h3>Tools</h3>
-              <ul>
-                <li className='tool--line tool__item'>
-                  <a href="#">
-                    <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
-                  </a>
-                </li> 
-                <li className='tool--line-add tool__item'>
-                  <a href="#">
-                    <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
-                  </a>
-                </li>
-                <li className='tool--cut tool__item'>
-                  <a className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode} href="#">
-                    <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
-                  </a>
-                </li>
-                <li className='tool--trash tool__item'>
-                  <a href="#">
-                    <img alt='delete' src='../graphics/layout/icon-trash.svg' />
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className='toggle'>
-              <h3>Predicted Road Layers</h3>
-              <ul>
-                <li className='toggle__item'>
-                  <a href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
-                    <icon className='visibility'><span>Hide/Show</span></icon>
-                    <span className='line-description'>All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}</span>
-                  </a>
-                </li>
-                <li className='toggle__item'>
-                  <a href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
-                    <icon className='visibility'><span>Hide/Show</span></icon>
-                    <span className='line-description'>Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
-                  </a>
-                </li>
-                <li className='toggle__item'>
-                  <a href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
-                    <icon className='visibility'><span>Hide/Show</span></icon>
-                    <span className='line-description'>Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
-                  </a>
-                </li>
-                <li className='toggle__item'>
-                  <a href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
-                    <icon className='visibility'><span>Hide/Show</span></icon>
-                    <span className='line-description'>In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+        </div>
+        <div className='tool-bar'>
+          <fieldset className='tools'>
+            <legend>Tools</legend>
+            <ul>
+              <li className='tool--line tool__item'>
+                <a href="#">
+                  <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
+                </a>
+              </li> 
+              <li className='tool--line-add tool__item'>
+                <a href="#">
+                  <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
+                </a>
+              </li>
+              <li className='tool--cut tool__item'>
+                <a className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode} href="#">
+                  <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
+                </a>
+              </li>
+              <li className='tool--trash tool__item'>
+                <a href="#">
+                  <img alt='delete' src='../graphics/layout/icon-trash.svg' />
+                </a>
+              </li>
+            </ul>
+          </fieldset>
+          <fieldset className='toggle'>
+            <legend>Predicted Road Layers</legend>
+            <ul>
+              <li className='toggle__item'>
+                <a href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
+                  <icon className='visibility'><span>Hide/Show</span></icon>
+                  <span className='line-description'>All lines {hidden.length >= 1 ? '(show all)' : '(hide all)'}</span>
+                </a>
+              </li>
+              <li className='toggle__item'>
+                <a href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+                  <icon className='visibility'><span>Hide/Show</span></icon>
+                  <span className='line-description'>Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
+                </a>
+              </li>
+              <li className='toggle__item'>
+                <a href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+                  <icon className='visibility'><span>Hide/Show</span></icon>
+                  <span className='line-description'>Incomplete {hidden.indexOf(INCOMPLETE) > -1 ? '(hidden)' : '(showing)'}</span>
+                </a>
+              </li>
+              <li className='toggle__item'>
+                <a href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
+                  <icon className='visibility'><span>Hide/Show</span></icon>
+                  <span className='line-description'>In progress {hidden.indexOf(EDITED) > -1 ? '(hidden)' : '(showing)'}</span>
+                </a>
+              </li>
+            </ul>
+          </fieldset>
         </div>
       </div>
     );
