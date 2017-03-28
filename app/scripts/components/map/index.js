@@ -97,14 +97,17 @@ export const Map = React.createClass({
     }
   },
 
-  expandMode: function (options) {
+  isLineContinuationValid: function () {
     const lineString = this.draw.getSelected().features[0];
     const selectedPoint = this.draw.getSelectedPoints().features[0];
     const mode = this.draw.getMode();
+    return mode === 'direct_select' && lineString && selectedPoint;
+  },
 
-    if (mode === 'direct_select' && lineString && selectedPoint) {
-      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
-    }
+  lineContinuationMode: function (options) {
+    const lineString = this.draw.getSelected().features[0];
+    const selectedPoint = this.draw.getSelectedPoints().features[0];
+    this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
   },
 
   splitMode: function (options) {
@@ -234,7 +237,6 @@ export const Map = React.createClass({
   },
 
   handleCreate: function (features) {
-    console.log('handleCreate', features);
     features.forEach(this.markAsEdited);
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
@@ -291,7 +293,6 @@ export const Map = React.createClass({
     // only mark line status as edited if it has no prior status
     if (!feature.properties.status) {
       feature.properties.status = EDITED;
-      console.log('feature', feature);
       this.draw.add(feature);
     }
   },
@@ -394,7 +395,7 @@ export const Map = React.createClass({
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
               </li>
-              <li className='tool--line-add tool__item' onClick={this.expandMode}>
+              <li className={c('tool--line-add tool__item', { disabled: !this.draw || (this.draw && !this.isLineContinuationValid()) })} onClick={this.lineContinuationMode}>
                 <a href="#">
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
                 </a>
