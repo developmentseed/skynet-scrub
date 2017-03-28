@@ -86,6 +86,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^0.17.0",
     "@turf/helpers": "^3.10.5",
     "@turf/line-slice": "^3.11.7",
     "classnames": "^2.2.5",

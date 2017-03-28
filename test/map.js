@@ -46,14 +46,14 @@ test('map', function (t) {
   setup({ dispatch: (d) => args.push(d) });
   const event = {
     features: [
-      {id: 1, properties: {}},
-      {id: 2, properties: {}},
-      {id: 3, properties: {}}
+      {id: 1, type: 'Feature', geometry: {type: 'Point', coordinates: [0, 0]}, properties: {}},
+      {id: 2, type: 'Feature', geometry: {type: 'Point', coordinates: [0, 0]}, properties: {}},
+      {id: 3, type: 'Feature', geometry: {type: 'Point', coordinates: [0, 0]}, properties: {}}
     ]
   };
   window.map.fire('draw.create', event);
   window.map.fire('draw.delete', event);
-  window.map.fire('draw.selectionchange', { features: [{ properties: {} }] });
+  window.map.fire('draw.selectionchange', { features: [{id: 1, type: 'Feature', geometry: {}, properties: {}}] });
   window.map.fire('draw.update', event);
 
   args.forEach(d => t.equals(d.type, 'UPDATE_SELECTION'));

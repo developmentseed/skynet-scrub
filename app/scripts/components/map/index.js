@@ -2,6 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import c from 'classnames';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import bboxPolygon from 'turf-bbox-polygon';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
@@ -9,7 +10,7 @@ import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment, existingRoadsSource } from '../../config';
-import window, { mapboxgl, MapboxDraw, glSupport } from '../../util/window';
+import window, { mapboxgl, glSupport } from '../../util/window';
 const { document } = window;
 
 import drawStyles from './styles/mapbox-draw-styles';
@@ -93,6 +94,16 @@ export const Map = React.createClass({
           console.log('mode', e.mode);
         });
       }
+    }
+  },
+
+  expandMode: function (options) {
+    const lineString = this.draw.getSelected().features[0];
+    const selectedPoint = this.draw.getSelectedPoints().features[0];
+    const mode = this.draw.getMode();
+
+    if (mode === 'direct_select' && lineString && selectedPoint) {
+      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
     }
   },
 
@@ -193,8 +204,8 @@ export const Map = React.createClass({
     // meta key can take the place of ctrl on osx
     const ctrl = ctrlKey || metaKey;
     let isShortcut = true;
-    switch (keyCode) {
 
+    switch (keyCode) {
       // z
       case (90):
         if (shiftKey && ctrl && future.length) this.redo();
@@ -205,6 +216,12 @@ export const Map = React.createClass({
       case (83):
         if (ctrl) this.save();
         break;
+
+      // e
+      case (69):
+        this.expandMode();
+        break;
+
       default:
         isShortcut = false;
     }
@@ -217,6 +234,7 @@ export const Map = React.createClass({
   },
 
   handleCreate: function (features) {
+    console.log('handleCreate', features);
     features.forEach(this.markAsEdited);
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
@@ -273,6 +291,7 @@ export const Map = React.createClass({
     // only mark line status as edited if it has no prior status
     if (!feature.properties.status) {
       feature.properties.status = EDITED;
+      console.log('feature', feature);
       this.draw.add(feature);
     }
   },
