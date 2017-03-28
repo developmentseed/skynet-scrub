@@ -337,6 +337,22 @@ export const Map = React.createClass({
     this.props.dispatch(toggleExistingRoads());
   },
 
+  delete: function () {
+    // override draw functionality for specific case:
+    // line selected, no point selected, in direct_select mode
+    const mode = this.draw.getMode();
+    const selected = this.draw.getSelected().features;
+    const selectedPoints = this.draw.getSelectedPoints().features;
+    if (mode === 'direct_select' && selected.length && !selectedPoints.length) {
+      this.draw.delete(selected.map(f => f.id));
+      this.handleDelete(selected);
+      this.setState({ selected: [] });
+    } else {
+      // use native draw delete, event handlers handle the rest
+      this.draw.trash();
+    }
+  },
+
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -397,7 +413,7 @@ export const Map = React.createClass({
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
               </li>
-              <li className='tool--trash tool__item' onClick={this.draw.trash}>
+              <li className='tool--trash tool__item' onClick={this.delete}>
                 <a href="#">
                   <img alt='delete' src='../graphics/layout/icon-trash.svg' />
                 </a>
