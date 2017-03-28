@@ -337,13 +337,6 @@ export const Map = React.createClass({
     this.props.dispatch(toggleExistingRoads());
   },
 
-  delete: function () {
-    const { selected } = this.state;
-    this.draw.delete(selected.map(f => f.id));
-    this.handleDelete(selected);
-    this.setState({ selected: [] });
-  },
-
   render: function () {
     if (!glSupport) { return noGl; }
     const { save } = this.props;
@@ -404,7 +397,7 @@ export const Map = React.createClass({
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
               </li>
-              <li className='tool--trash tool__item' onClick={this.delete}>
+              <li className='tool--trash tool__item' onClick={this.draw.trash}>
                 <a href="#">
                   <img alt='delete' src='../graphics/layout/icon-trash.svg' />
                 </a>
