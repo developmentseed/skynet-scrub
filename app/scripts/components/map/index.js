@@ -222,6 +222,12 @@ export const Map = React.createClass({
         this.expandMode();
         break;
 
+      // del & backspace
+      case (8):
+      case (46):
+        this.delete();
+        break;
+
       default:
         isShortcut = false;
     }
