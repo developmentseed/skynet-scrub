@@ -222,6 +222,12 @@ export const Map = React.createClass({
         this.expandMode();
         break;
 
+      // del & backspace
+      case (8):
+      case (46):
+        this.delete();
+        break;
+
       default:
         isShortcut = false;
     }
@@ -338,10 +344,19 @@ export const Map = React.createClass({
   },
 
   delete: function () {
-    const { selected } = this.state;
-    this.draw.delete(selected.map(f => f.id));
-    this.handleDelete(selected);
-    this.setState({ selected: [] });
+    // override draw functionality for specific case:
+    // line selected, no point selected, in direct_select mode
+    const mode = this.draw.getMode();
+    const selected = this.draw.getSelected().features;
+    const selectedPoints = this.draw.getSelectedPoints().features;
+    if (mode === 'direct_select' && selected.length && !selectedPoints.length) {
+      this.draw.delete(selected.map(f => f.id));
+      this.handleDelete(selected);
+      this.setState({ selected: [] });
+    } else {
+      // use native draw delete, event handlers handle the rest
+      this.draw.trash();
+    }
   },
 
   render: function () {
@@ -394,7 +409,7 @@ export const Map = React.createClass({
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
               </li>
-              <li className='tool--line-add tool__item'>
+              <li className='tool--line-add tool__item' onClick={this.expandMode}>
                 <a href="#">
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
                 </a>
