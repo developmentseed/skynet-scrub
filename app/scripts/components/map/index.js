@@ -413,8 +413,8 @@ export const Map = React.createClass({
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
                 </a>
               </li>
-              <li className='tool--cut tool__item'>
-                <a className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode} href="#">
+              <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
+                <a onClick={this.splitMode} href="#">
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
               </li>
