@@ -24,6 +24,7 @@ const COMPLETE = 'complete';
 const INCOMPLETE = 'incomplete';
 const EDITED = 'in progress';
 const MULTIPLE = 'multiple';
+const CONTINUE = 'continue';
 
 const noGl = (
   <div className='nogl'>
@@ -97,14 +98,18 @@ export const Map = React.createClass({
     }
   },
 
-  expandMode: function (options) {
+  isLineContinuationValid: function () {
     const lineString = this.draw.getSelected().features[0];
     const selectedPoint = this.draw.getSelectedPoints().features[0];
     const mode = this.draw.getMode();
+    return mode === 'direct_select' && lineString && selectedPoint;
+  },
 
-    if (mode === 'direct_select' && lineString && selectedPoint) {
-      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
-    }
+  lineContinuationMode: function (options) {
+    const lineString = this.draw.getSelected().features[0];
+    const selectedPoint = this.draw.getSelectedPoints().features[0];
+    this.props.dispatch(changeDrawMode(CONTINUE));
+    this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
   },
 
   splitMode: function (options) {
@@ -240,8 +245,10 @@ export const Map = React.createClass({
   },
 
   handleCreate: function (features) {
-    console.log('handleCreate', features);
     features.forEach(this.markAsEdited);
+    // reset draw mode in case we were in CONTINUE; remove this after line
+    // continuation doesn't fire a create event
+    this.props.dispatch(changeDrawMode(null));
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
 
@@ -251,6 +258,8 @@ export const Map = React.createClass({
       const oldFeature = this.state.selected.find(a => a.id === f.id);
       return { id: f.id, undo: oldFeature, redo: f };
     })));
+    // reset draw mode in case we were in CONTINUE
+    this.props.dispatch(changeDrawMode(null));
     this.setState({selected: this.draw.getSelected().features});
   },
 
@@ -297,7 +306,6 @@ export const Map = React.createClass({
     // only mark line status as edited if it has no prior status
     if (!feature.properties.status) {
       feature.properties.status = EDITED;
-      console.log('feature', feature);
       this.draw.add(feature);
     }
   },
@@ -409,13 +417,19 @@ export const Map = React.createClass({
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
               </li>
-              <li className='tool--line-add tool__item' onClick={this.expandMode}>
+              <li
+                className={c('tool--line-add tool__item',
+                { disabled: !this.draw || (this.draw && !this.isLineContinuationValid() && this.props.draw.mode !== CONTINUE) },
+                { active: this.props.draw.mode === CONTINUE }
+                )}
+                onClick={this.lineContinuationMode}
+                >
                 <a href="#">
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
                 </a>
               </li>
-              <li className='tool--cut tool__item'>
-                <a className={c({active: this.props.draw.mode === SPLIT})} onClick={this.splitMode} href="#">
+              <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
+                <a onClick={this.splitMode} href="#">
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
               </li>
