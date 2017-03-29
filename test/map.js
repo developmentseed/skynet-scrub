@@ -56,8 +56,7 @@ test('map', function (t) {
   window.map.fire('draw.selectionchange', { features: [{id: 1, type: 'Feature', geometry: {}, properties: {}}] });
   window.map.fire('draw.update', event);
 
-  args.forEach(d => t.equals(d.type, 'UPDATE_SELECTION'));
-  t.equals(args.length, 3);
+  args.forEach(d => t.ok(d.type === 'UPDATE_SELECTION' || d.type === 'CHANGE_DRAW_MODE'));
+  t.equals(args.length, 5);
   t.end();
 });
-
