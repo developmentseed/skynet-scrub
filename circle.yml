@@ -4,3 +4,9 @@ machine:
 test:
   override:
     - npm run test
+deployment:
+  production:
+    branch: master
+    commands:
+      - npm run build
+      - surge --project ./dist --domain skynet-scrub.surge.sh
