@@ -1,7 +1,6 @@
 'use strict';
-var logo = require('./logo');
+
 module.exports = {
   environment: 'production',
-  consoleMessage: logo
+  baseUrl: 'http://138.197.97.15:4030'
 };
-
