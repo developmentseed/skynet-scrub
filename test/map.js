@@ -2,19 +2,24 @@
 import React from 'react';
 import test from 'tape';
 import mock from 'mapbox-gl-js-mock';
-import window, * as global from '../app/scripts/util/window';
-global.glSupport = true;
+import g from '../app/scripts/util/window';
+g.glSupport = true;
 import { Map } from '../app/scripts/components/map';
 import { mount } from 'enzyme';
 
-global.mapboxgl = mock;
+g.mapboxgl = mock;
+
+import jsdom from 'jsdom';
+const doc = jsdom.jsdom('<!doctype html><html><body></body></html>');
+global.window = g.window = doc.defaultView;
+global.document = g.window.document = doc;
 
 // stub mapbox draw
 const draw = () => true;
 draw.prototype.add = () => true;
 draw.prototype.onAdd = () => true;
 draw.prototype.getSelected = () => ({ features: [{ properties: {} }] });
-global.MapboxDraw = draw;
+g.MapboxDraw = draw;
 
 function setup (options) {
   options = options || {};
@@ -51,10 +56,10 @@ test('map', function (t) {
       {id: 3, type: 'Feature', geometry: {type: 'Point', coordinates: [0, 0]}, properties: {}}
     ]
   };
-  window.map.fire('draw.create', event);
-  window.map.fire('draw.delete', event);
-  window.map.fire('draw.selectionchange', { features: [{id: 1, type: 'Feature', geometry: {}, properties: {}}] });
-  window.map.fire('draw.update', event);
+  g.map.fire('draw.create', event);
+  g.map.fire('draw.delete', event);
+  g.map.fire('draw.selectionchange', { features: [{id: 1, type: 'Feature', geometry: {}, properties: {}}] });
+  g.map.fire('draw.update', event);
 
   args.forEach(d => t.ok(d.type === 'UPDATE_SELECTION' || d.type === 'CHANGE_DRAW_MODE'));
   t.equals(args.length, 5);

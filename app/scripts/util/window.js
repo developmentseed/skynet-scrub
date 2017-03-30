@@ -1,8 +1,9 @@
 'use strict';
 import check from 'mapbox-gl-supported';
-const isNode = typeof window === 'undefined';
-const _ = isNode ? {} : window;
-export const mapboxgl = !isNode ? _.mapboxgl : () => true;
-export const MapboxDraw = !isNode ? _.MapboxDraw : () => true;
-export const glSupport = check();
-export default _;
+const isBrowser = typeof window !== 'undefined';
+const g = {};
+g.window = isBrowser ? window : {};
+g.mapboxgl = isBrowser ? window.mapboxgl : () => true;
+g.MapboxDraw = isBrowser ? window.MapboxDraw : () => true;
+g.glSupport = check();
+export default g;
