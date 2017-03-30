@@ -1,5 +1,5 @@
 'use strict';
-import window from './util/window';
+import g from './util/window';
 
 import React from 'react';
 import { render } from 'react-dom';
@@ -42,4 +42,4 @@ render((
       </Route>
     </Router>
   </Provider>
-), window.document.getElementById('site-canvas'));
+), g.window.document.getElementById('site-canvas'));
