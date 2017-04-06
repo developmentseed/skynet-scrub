@@ -112,6 +112,7 @@
     "redux-thunk": "^2.2.0",
     "store2": "^2.5.0",
     "tile-cover": "^3.0.1",
-    "turf-bbox-polygon": "^3.0.12"
+    "turf-bbox-polygon": "^3.0.12",
+    "turf-distance": "^3.0.12"
   }
 }
