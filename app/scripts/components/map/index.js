@@ -38,7 +38,7 @@ export const Map = React.createClass({
     if (el && !this.map && g.glSupport) {
       g.mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
       this.map = g.map = new g.mapboxgl.Map({
-        center: [125.48, 9.7],
+        center: [105.66, 20],
         container: el,
         scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
