@@ -3,6 +3,7 @@ import nock from 'nock';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 
+import { baseUrl } from '../app/scripts/config/base';
 import { save } from '../app/scripts/actions';
 
 const middlewares = [thunk];
@@ -10,7 +11,7 @@ const mockStore = configureMockStore(middlewares);
 
 test('save', function (t) {
   t.test('creates SAVE actions', function (st) {
-    nock('http://localhost:4030/')
+    nock(baseUrl)
       .post('/commit')
       .reply(200, { body: 'ok' });
 
