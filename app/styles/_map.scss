@@ -45,6 +45,12 @@
   color: $darker-blue;
 }
 
+.button--secondary {
+  color: $light-grey;
+  border: 1px solid $light-grey;
+  text-transform: uppercase;
+}
+
 .button-redo {
   position: relative;
   padding: .3em 2.8em .15em 1.5em;
@@ -80,6 +86,10 @@
     left: .8em;
     top: .6em;
   }
+}
+
+.button--group {
+  margin-right: 1em;
 }
 
 .select-wrapper {

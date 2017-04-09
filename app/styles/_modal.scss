@@ -24,7 +24,7 @@
 .modal {
   position: fixed;
   text-align: center;
-  top: 30px;
+  top: 8em;
   width: 100%;
   z-index: 201;
 }
@@ -33,4 +33,19 @@
   display: inline-block;
   background-color: white;
   text-align: left;
+  padding: 2.5em 3em 3.5em;
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px;
+}
+
+.modal__files-changed {
+  font-size: .86em;
+  margin: 1.5em 0 2.5em;
+  list-style-type: circle;
+  padding-left: 1.5em;
+  color: $grey;
+  li {
+    margin-bottom: .5em;
+  }
 }
