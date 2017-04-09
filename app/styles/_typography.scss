@@ -2,18 +2,17 @@ h1, h2, h3, h4, h5, h6 {
   color: $dark-grey;
   font-family: $base-font-family;
   font-weight: $base-font-bold;
+  margin-bottom: .5em;
 }
 
 .heading--xxlarge {
   font-size: 3.2em;
   font-weight: $base-font-bold;
-  color: #fff;
 }
 
 .heading--xlarge {
   font-size: 3.2em;
   font-weight: $base-font-bold;
-  color: #fff;
 }
 
 .heading--large {
@@ -23,7 +22,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .heading--medium {
   font-size: 1.58em;
-  font-weight: $base-font-regular;
+ font-weight: $base-font-bold;
 }
 
 .heading--small {
@@ -39,4 +38,8 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid $lightest-grey;
   padding-bottom: .3em;
   margin-bottom: 1.2em;
+}
+
+.with-description {
+  margin-bottom: .3em;
 }
