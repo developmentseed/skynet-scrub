@@ -4,8 +4,11 @@ import { connect } from 'react-redux';
 import c from 'classnames';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import bboxPolygon from 'turf-bbox-polygon';
+import distance from 'turf-distance';
+import { coordEach } from '@turf/meta';
 import { point } from '@turf/helpers';
 import lineSlice from '@turf/line-slice';
+import dissolve from 'geojson-linestring-dissolve';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
@@ -86,6 +89,7 @@ export const Map = React.createClass({
       this.map.on('click', (e) => {
         switch (this.props.draw.mode) {
           case SPLIT: this.splitLine(e); break;
+          case CONTINUE: this.joinLines(e); break;
         }
       });
       // development-only logs for when draw switches modes
@@ -329,6 +333,67 @@ export const Map = React.createClass({
     newLines.forEach(this.markAsEdited);
     const actions = newLines.map(createRedo).concat(createUndo(line));
     this.props.dispatch(updateSelection(actions));
+  },
+
+  joinLines: function (e) {
+    const { draw, props } = this;
+
+    const cursor = point([e.lngLat.lng, e.lngLat.lat]);
+    const featureIds = draw.getFeatureIdsAt(e.point);
+
+    // a length of 2 means we're hovering over a feature
+    if (featureIds.length > 1) {
+      // the first item in the array seems to always be the one the user is continuing from
+      const fromLineString = draw.get(featureIds[0]);
+      const originalFromLineString = fromLineString;
+      const toLineString = draw.get(featureIds[1]);
+      const mergedLineString = { type: 'Feature', properties: { status: 'edited' } };
+      let nearest;
+      let minDist;
+
+      coordEach(toLineString, function (coord, i) {
+        var dist = distance(cursor, point(coord));
+
+        if (!minDist || dist < minDist) {
+          nearest = toLineString.geometry.coordinates[i];
+          minDist = dist;
+        }
+      });
+
+      // add point to front or back of fromLineString dependending on distance
+      // TODO: is there a way to get something like "most recent point i've continued from"
+      const fromFront = fromLineString.geometry.coordinates[0];
+      const fromBack = fromLineString.geometry.coordinates[fromLineString.geometry.coordinates.length - 1];
+      const frontDistance = distance(fromFront, nearest);
+      const backDistance = distance(fromBack, nearest);
+
+      if (frontDistance > backDistance) {
+        fromLineString.geometry.coordinates.push(nearest);
+      } else {
+        fromLineString.geometry.coordinates.unshift(nearest);
+      }
+
+      // merge the two lines together
+      mergedLineString.geometry = dissolve([fromLineString.geometry, toLineString.geometry]);
+
+      // delete old lines
+      draw.delete(fromLineString.id);
+      draw.delete(toLineString.id);
+
+      // add new merged line
+      const newId = draw.add(mergedLineString);
+      const newLine = draw.get(newId);
+
+      var actions = [
+        createUndo(originalFromLineString),
+        createUndo(toLineString),
+        createRedo(newLine)
+      ];
+
+      props.dispatch(changeDrawMode(null));
+      draw.changeMode('simple_select');
+      props.dispatch(updateSelection(actions));
+    }
   },
 
   setLineStatus: function (e) {
