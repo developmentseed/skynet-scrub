@@ -55,11 +55,12 @@ export const AutoSave = React.createClass({
     ));
     return (
       <div>
+        <i className='icon-close' onClick={this.restore}></i>
         <h2 className='heading--medium with-description'>Save Your Changes</h2>
         <p>By leaving this page all changes below will be deleted.</p>
         <ul className='cached modal__files-changed'>{items}</ul>
         <button className='button button-base button--group' onClick={this.restore}>Restore</button>
-        <button className='button button--outline button--secondary button--group' onClick={this.forget}>Delete & Exit</button>
+        <button className='button button--secondary button--group' onClick={this.forget}>Delete & Exit</button>
       </div>
     );
   },
