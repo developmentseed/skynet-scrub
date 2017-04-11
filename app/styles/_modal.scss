@@ -33,18 +33,36 @@
   display: inline-block;
   background-color: white;
   text-align: left;
-  padding: 2.5em 3em 3.5em;
+  padding: 3.2em 2.8em 3.5em;
   -webkit-border-radius: 4px; 
   -moz-border-radius: 4px; 
   border-radius: 4px;
+  position: relative;
+  p {
+    color: $grey;
+    margin-top: .8em;
+  }
+}
+
+.icon-close {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-image: url(../graphics/layout/xmark.svg);
+  background-size: 10px 10px;
+  display: block;
+  position: absolute;
+  right: 1.8em;
+  top: 1.5em;
+  cursor: pointer;
 }
 
 .modal__files-changed {
   font-size: .86em;
-  margin: 1.5em 0 2.5em;
+  margin: 1.8em 0 3em;
   list-style-type: circle;
   padding-left: 1.5em;
-  color: $grey;
+  color: $base-grey;
   li {
     margin-bottom: .5em;
   }
