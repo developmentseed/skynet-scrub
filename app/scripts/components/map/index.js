@@ -70,6 +70,7 @@ export const Map = React.createClass({
           type: 'vector',
           tiles: [existingRoadsSource]
         });
+
         this.map.addLayer({
           id: 'network',
           source: 'network',
@@ -79,6 +80,26 @@ export const Map = React.createClass({
             'line-width': 2
           },
           'source-layer': 'network'
+        });
+
+        this.map.addSource('join-supplementary-point', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: null
+          }
+        });
+
+        this.map.addLayer({
+          id: 'join-supplementary-point',
+          source: 'join-supplementary-point',
+          type: 'circle',
+          paint: {
+            'circle-radius': 5,
+            'circle-color': '#FFFFFF',
+            'circle-stroke-color': '#3E3A3A',
+            'circle-stroke-width': 2
+          }
         });
 
         this.loadMapData(e);
@@ -92,6 +113,37 @@ export const Map = React.createClass({
           case CONTINUE: this.joinLines(e); break;
         }
       });
+
+      let joinHover = false;
+      this.map.on('mousemove', (e) => {
+        const mode = draw.getMode();
+        if (mode === 'draw_line_string') {
+          const featureIds = draw.getFeatureIdsAt(e.point);
+          const featureId = featureIds.length > 1 ? featureIds[1] : null;
+          const feature = draw.get(featureId);
+          const source = this.map.getSource('join-supplementary-point');
+
+          if (feature) {
+            joinHover = true;
+            var cursor = point([e.lngLat.lng, e.lngLat.lat]);
+            const coord = this.nearestCoordinate(cursor, feature);
+
+            if (coord && source) {
+              source.setData({
+                type: 'Point',
+                coordinates: coord
+              });
+            }
+          } else if (joinHover) {
+            source.setData({
+              type: 'Feature',
+              geometry: null
+            });
+            joinHover = false;
+          }
+        }
+      });
+
       // development-only logs for when draw switches modes
       if (environment === 'development') {
         this.map.on('draw.modechange', (e) => {
@@ -348,17 +400,7 @@ export const Map = React.createClass({
       const originalFromLineString = fromLineString;
       const toLineString = draw.get(featureIds[1]);
       const mergedLineString = { type: 'Feature', properties: { status: 'edited' } };
-      let nearest;
-      let minDist;
-
-      coordEach(toLineString, function (coord, i) {
-        var dist = distance(cursor, point(coord));
-
-        if (!minDist || dist < minDist) {
-          nearest = toLineString.geometry.coordinates[i];
-          minDist = dist;
-        }
-      });
+      const nearest = this.nearestCoordinate(cursor, toLineString);
 
       // add point to front or back of fromLineString dependending on distance
       // TODO: is there a way to get something like "most recent point i've continued from"
@@ -390,10 +432,32 @@ export const Map = React.createClass({
         createRedo(newLine)
       ];
 
+      // remove supplementary point from map
+      this.map.getSource('join-supplementary-point').setData({
+        type: 'Feature',
+        geometry: null
+      });
+
       props.dispatch(changeDrawMode(null));
       draw.changeMode('simple_select');
       props.dispatch(updateSelection(actions));
     }
+  },
+
+  nearestCoordinate: function (coordinate, feature) {
+    let nearest;
+    let minDist;
+
+    coordEach(feature, function (coord, i) {
+      var dist = distance(coordinate, point(coord));
+
+      if (!minDist || dist < minDist) {
+        nearest = coord;
+        minDist = dist;
+      }
+    });
+
+    return nearest;
   },
 
   setLineStatus: function (e) {
