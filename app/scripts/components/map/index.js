@@ -187,28 +187,7 @@ export const Map = React.createClass({
         this.map.setFilter(hotLayer, [...baseFilter, ['!in', 'user_status'].concat(nextProps.draw.hidden)]);
       }
     });
-
-    // this.draw.getAll().features.forEach((feature, i) => {
-    //   const visible = feature.properties.visibility !== 'none';
-    //   const featureStatus = feature.properties.status ? feature.properties.status : 'incomplete';
-    //
-    //   if (!hiddenLines.length) {
-    //     if (!visible) this.showLine(feature.id);
-    //   } else if (!visible && hiddenLines.indexOf(featureStatus) === -1) {
-    //     this.showLine(feature.id);
-    //   } else if (visible && hiddenLines.indexOf(featureStatus) > -1) {
-    //     this.hideLine(feature.id);
-    //   }
-    // });
   },
-
-  // hideLine: function (featureId) {
-  //   this.draw.setFeatureProperty(featureId, 'visibility', 'none');
-  // },
-  //
-  // showLine: function (featureId) {
-  //   this.draw.setFeatureProperty(featureId, 'visibility', null);
-  // },
 
   featureUpdate: function (feature, undoOrRedoKey) {
     // if we have a geo, replace/add
