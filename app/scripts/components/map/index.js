@@ -16,6 +16,8 @@ import { environment, existingRoadsSource } from '../../config';
 import g from '../../util/window';
 
 import drawStyles from './styles/mapbox-draw-styles';
+const lineLayers = drawStyles.filter(style => style.type === 'line');
+
 import {
   updateSelection, undo, redo, completeUndo, completeRedo, save, fetchMapData,
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
@@ -158,7 +160,11 @@ export const Map = React.createClass({
       nextProps.map.tempStore.forEach(feature => {
         // only add, no deletes or updates
         if (!this.draw.get(feature.properties.id)) {
-          this.draw.add(Object.assign({}, feature, { id: feature.properties.id }));
+          const toAdd = Object.assign({}, feature, { id: feature.properties.id });
+          if (!toAdd.properties.hasOwnProperty('status')) {
+            toAdd.properties.status = 'incomplete';
+          }
+          this.draw.add(toAdd);
         }
       });
       this.props.dispatch(completeMapUpdate());
@@ -172,28 +178,19 @@ export const Map = React.createClass({
     }
 
     // line visibility
-    const hiddenLines = nextProps.draw.hidden;
-
-    this.draw.getAll().features.forEach((feature, i) => {
-      const visible = feature.properties.visibility !== 'none';
-      const featureStatus = feature.properties.status ? feature.properties.status : 'incomplete';
-
-      if (!hiddenLines.length) {
-        if (!visible) this.showLine(feature.id);
-      } else if (!visible && hiddenLines.indexOf(featureStatus) === -1) {
-        this.showLine(feature.id);
-      } else if (visible && hiddenLines.indexOf(featureStatus) > -1) {
-        this.hideLine(feature.id);
+    // const hiddenLines = nextProps.draw.hidden;
+    lineLayers.forEach(layer => {
+      const coldLayer = `${layer.id}.cold`;
+      const hotLayer = `${layer.id}.hot`;
+      if (this.map.getLayer(coldLayer)) {
+        const baseFilter = lineLayers.find(l => l.id === layer.id).filter;
+        this.map.setFilter(coldLayer, [...baseFilter, ['!in', 'user_status'].concat(nextProps.draw.hidden)]);
+      }
+      if (this.map.getLayer(hotLayer)) {
+        const baseFilter = lineLayers.find(l => l.id === layer.id).filter;
+        this.map.setFilter(hotLayer, [...baseFilter, ['!in', 'user_status'].concat(nextProps.draw.hidden)]);
       }
     });
-  },
-
-  hideLine: function (featureId) {
-    this.draw.setFeatureProperty(featureId, 'visibility', 'none');
-  },
-
-  showLine: function (featureId) {
-    this.draw.setFeatureProperty(featureId, 'visibility', null);
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
