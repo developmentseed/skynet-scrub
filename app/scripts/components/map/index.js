@@ -65,6 +65,11 @@ export const Map = React.createClass({
       this.map.on('draw.selectionchange', (e) => {
         // internal state used to track "previous state" of edited geometry
         this.setState({selected: e.features});
+        // skip directly to direct_select if a feature is selected
+        const mode = draw.getMode();
+        if (e.features.length === 1 && mode === 'simple_select') {
+          draw.changeMode('direct_select', { featureId: e.features[0].id });
+        }
       });
 
       this.map.on('load', (e) => {
@@ -303,8 +308,7 @@ export const Map = React.createClass({
   },
 
   markAsEdited: function (feature) {
-    // only mark line status as edited if it has no prior status
-    if (!feature.properties.status) {
+    if (feature.properties.status !== EDITED) {
       feature.properties.status = EDITED;
       this.draw.add(feature);
     }
