@@ -348,7 +348,7 @@ export const Map = React.createClass({
       const fromLineString = draw.get(featureIds[0]);
       const originalFromLineString = fromLineString;
       const toLineString = draw.get(featureIds[1]);
-      const mergedLineString = { type: 'Feature', properties: { status: 'edited' } };
+      const mergedLineString = { type: 'Feature', properties: { status: EDITED } };
       let nearest;
       let minDist;
 
