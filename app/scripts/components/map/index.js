@@ -23,12 +23,7 @@ import {
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
-const SPLIT = 'split';
-const COMPLETE = 'complete';
-const INCOMPLETE = 'incomplete';
-const EDITED = 'in progress';
-const MULTIPLE = 'multiple';
-const CONTINUE = 'continue';
+import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE } from './utils/constants';
 
 const noGl = (
   <div className='nogl'>
