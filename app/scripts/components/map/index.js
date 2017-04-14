@@ -23,12 +23,7 @@ import {
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
-const SPLIT = 'split';
-const COMPLETE = 'complete';
-const INCOMPLETE = 'incomplete';
-const EDITED = 'in progress';
-const MULTIPLE = 'multiple';
-const CONTINUE = 'continue';
+import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE } from './utils/constants';
 
 const noGl = (
   <div className='nogl'>
@@ -65,6 +60,11 @@ export const Map = React.createClass({
       this.map.on('draw.selectionchange', (e) => {
         // internal state used to track "previous state" of edited geometry
         this.setState({selected: e.features});
+        // skip directly to direct_select if a feature is selected
+        const mode = draw.getMode();
+        if (e.features.length === 1 && mode === 'simple_select') {
+          draw.changeMode('direct_select', { featureId: e.features[0].id });
+        }
       });
 
       this.map.on('load', (e) => {
@@ -303,8 +303,7 @@ export const Map = React.createClass({
   },
 
   markAsEdited: function (feature) {
-    // only mark line status as edited if it has no prior status
-    if (!feature.properties.status) {
+    if (feature.properties.status !== EDITED) {
       feature.properties.status = EDITED;
       this.draw.add(feature);
     }
@@ -344,7 +343,7 @@ export const Map = React.createClass({
       const fromLineString = draw.get(featureIds[0]);
       const originalFromLineString = fromLineString;
       const toLineString = draw.get(featureIds[1]);
-      const mergedLineString = { type: 'Feature', properties: { status: 'edited' } };
+      const mergedLineString = { type: 'Feature', properties: { status: EDITED } };
       let nearest;
       let minDist;
 

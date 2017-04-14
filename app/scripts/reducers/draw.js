@@ -1,4 +1,5 @@
 import { CHANGE_DRAW_MODE, TOGGLE_VISIBILITY } from '../actions';
+import { COMPLETE, INCOMPLETE, EDITED } from '../components/map/utils/constants';
 
 const initial = {
   mode: null,
@@ -13,7 +14,7 @@ const draw = (state = initial, action) => {
       const status = action.data;
 
       if (status === 'all') {
-        state.hidden = state.hidden.length ? [] : ['complete', 'incomplete', 'edited'];
+        state.hidden = state.hidden.length ? [] : [COMPLETE, INCOMPLETE, EDITED];
         return Object.assign({}, state);
       } else if (state.hidden.indexOf(status) > -1) {
         state.hidden.splice(state.hidden.indexOf(status), 1);
