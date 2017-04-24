@@ -2,17 +2,16 @@
 import React from 'react';
 import test from 'tape';
 import mock from 'mapbox-gl-js-mock';
-import g from '../app/scripts/util/window';
 import proxyquire from 'proxyquire';
-g.glSupport = true;
 import { mount } from 'enzyme';
+import App from '../app/scripts/util/app';
+App.glSupport = true;
 
-g.mapboxgl = mock;
-
+// stub global DOM methods
 import jsdom from 'jsdom';
 const doc = jsdom.jsdom('<!doctype html><html><body></body></html>');
-global.window = g.window = doc.defaultView;
-global.document = g.window.document = doc;
+global.window = doc.defaultView;
+global.document = doc;
 
 // stub mapbox draw
 const draw = () => true;
@@ -24,7 +23,9 @@ draw.prototype.getMode = () => 'simple_select';
 draw.prototype.changeMode = () => true;
 
 const { Map } = proxyquire.noCallThru().load('../app/scripts/components/map', {
-  '@mapbox/mapbox-gl-draw': draw
+  '@mapbox/mapbox-gl-draw': draw,
+  'mapbox-gl': mock,
+  '../../util/app': App
 });
 
 function setup (options) {
@@ -62,10 +63,11 @@ test('map', function (t) {
       {id: 3, type: 'Feature', geometry: {type: 'LineString', coordinates: [[1, 1], [2, 2]]}, properties: {}}
     ]
   };
-  g.map.fire('draw.create', event);
-  g.map.fire('draw.delete', event);
-  g.map.fire('draw.selectionchange', { features: [{id: 1, type: 'LineString', geometry: {}, properties: {}}] });
-  g.map.fire('draw.update', event);
+
+  App.map.fire('draw.create', event);
+  App.map.fire('draw.delete', event);
+  App.map.fire('draw.selectionchange', { features: [{id: 1, type: 'LineString', geometry: {}, properties: {}}] });
+  App.map.fire('draw.update', event);
 
   args.forEach(d => t.ok(d.type === 'UPDATE_SELECTION' || d.type === 'CHANGE_DRAW_MODE'));
   t.equals(args.length, 5);

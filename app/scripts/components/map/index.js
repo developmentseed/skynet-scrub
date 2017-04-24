@@ -13,7 +13,7 @@ import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment, existingRoadsSource } from '../../config';
-import { glSupport } from '../../util/window';
+import App from '../../util/app';
 import mapboxgl from 'mapbox-gl';
 
 import drawStyles from './styles/mapbox-draw-styles';
@@ -36,9 +36,9 @@ export const Map = React.createClass({
   getInitialState: () => ({ selected: [] }),
 
   initMap: function (el) {
-    if (el && !this.map && glSupport) {
+    if (el && !this.map && App.glSupport) {
       mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
-      this.map = new mapboxgl.Map({
+      this.map = App.map = new mapboxgl.Map({
         center: [105.66, 20],
         container: el,
         scrollWheelZoom: false,
@@ -138,7 +138,7 @@ export const Map = React.createClass({
     if (typeof document.removeEventListener === 'function') {
       document.removeEventListener('keydown', this.handleShortcuts);
     }
-    this.map = this.draw = null;
+    this.map = App.map = this.draw = null;
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -428,7 +428,7 @@ export const Map = React.createClass({
   },
 
   render: function () {
-    if (!glSupport) { return noGl; }
+    if (!App.glSupport) { return noGl; }
     const { save } = this.props;
     const { past, future } = this.props.selection;
     const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
