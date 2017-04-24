@@ -129,15 +129,11 @@ export const Map = React.createClass({
   },
 
   componentWillMount: function () {
-    if (typeof document.addEventListener === 'function') {
-      document.addEventListener('keydown', this.handleShortcuts);
-    }
+    document.addEventListener('keydown', this.handleShortcuts);
   },
 
   componentWillUnmount: function () {
-    if (typeof document.removeEventListener === 'function') {
-      document.removeEventListener('keydown', this.handleShortcuts);
-    }
+    document.removeEventListener('keydown', this.handleShortcuts);
     this.map = App.map = this.draw = null;
   },
 
