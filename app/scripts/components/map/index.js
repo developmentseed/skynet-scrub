@@ -110,11 +110,13 @@ export const Map = React.createClass({
     return mode === 'direct_select' && lineString && selectedPoint;
   },
 
-  lineContinuationMode: function (options) {
+  lineContinuationMode: function () {
     const lineString = this.draw.getSelected().features[0];
     const selectedPoint = this.draw.getSelectedPoints().features[0];
-    this.props.dispatch(changeDrawMode(CONTINUE));
-    this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
+    if (selectedPoint) {
+      this.props.dispatch(changeDrawMode(CONTINUE));
+      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
+    }
   },
 
   splitMode: function (options) {
@@ -221,6 +223,11 @@ export const Map = React.createClass({
       // e
       case (69):
         this.expandMode();
+        break;
+
+      // c
+      case (67):
+        this.lineContinuationMode();
         break;
 
       // del & backspace
