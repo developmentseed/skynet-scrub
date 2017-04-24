@@ -38,8 +38,8 @@
 
 .button-base {
   color: #fff;
-  text-transform: uppercase;
   background-color: $blue;
+  position: relative;
   &:hover {
     background-color: darken($blue, 10%);
     border: 1px solid darken($blue, 13%);
@@ -320,6 +320,7 @@ select {
   position: absolute;
   pointer-events: none;
   text-align: center;
+  z-index: 999;
 }
 
 .help__top {

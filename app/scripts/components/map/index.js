@@ -478,11 +478,11 @@ export const Map = React.createClass({
                 </div>
               </li>
               <li>
-                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo</button>
-                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo</button>
+                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
+                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
               </li>
               <li>
-                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>Save Changes</button>
+                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
                 {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
                 {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
               </li>
