@@ -13,7 +13,8 @@ import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
 import { environment, existingRoadsSource } from '../../config';
-import g from '../../util/window';
+import { glSupport } from '../../util/window';
+import mapboxgl from 'mapbox-gl';
 
 import drawStyles from './styles/mapbox-draw-styles';
 const lineLayers = drawStyles.filter(style => style.type === 'line');
@@ -35,9 +36,9 @@ export const Map = React.createClass({
   getInitialState: () => ({ selected: [] }),
 
   initMap: function (el) {
-    if (el && !this.map && g.glSupport) {
-      g.mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
-      this.map = g.map = new g.mapboxgl.Map({
+    if (el && !this.map && glSupport) {
+      mapboxgl.accessToken = 'pk.eyJ1IjoibWFwZWd5cHQiLCJhIjoiY2l6ZTk5YTNxMjV3czMzdGU5ZXNhNzdraSJ9.HPI_4OulrnpD8qI57P12tg';
+      this.map = new mapboxgl.Map({
         center: [105.66, 20],
         container: el,
         scrollWheelZoom: false,
@@ -51,7 +52,6 @@ export const Map = React.createClass({
       });
       this.map.addControl(draw);
       this.draw = draw;
-      g.Draw = draw;
       // TODO: review whether the create and delete listeners fire anywhere now
       // that we're calling some events programatically
       this.map.on('draw.create', (e) => this.handleCreate(e.features));
@@ -129,16 +129,16 @@ export const Map = React.createClass({
   },
 
   componentWillMount: function () {
-    if (typeof g.window.document.addEventListener === 'function') {
-      g.window.document.addEventListener('keydown', this.handleShortcuts);
+    if (typeof document.addEventListener === 'function') {
+      document.addEventListener('keydown', this.handleShortcuts);
     }
   },
 
   componentWillUnmount: function () {
-    if (typeof g.window.document.removeEventListener === 'function') {
-      g.window.document.removeEventListener('keydown', this.handleShortcuts);
+    if (typeof document.removeEventListener === 'function') {
+      document.removeEventListener('keydown', this.handleShortcuts);
     }
-    g.map = g.Draw = null;
+    this.map = this.draw = null;
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -428,7 +428,7 @@ export const Map = React.createClass({
   },
 
   render: function () {
-    if (!g.glSupport) { return noGl; }
+    if (!glSupport) { return noGl; }
     const { save } = this.props;
     const { past, future } = this.props.selection;
     const isSynced = !past.length || save.historyId === past[past.length - 1].historyId;
