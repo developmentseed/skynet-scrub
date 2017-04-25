@@ -20,13 +20,13 @@
 }
 
 .disabled {
-  opacity: 0.45;
+  img { opacity: 0.45; }
   pointer-events: none;
 }
 
 .button {
-  -webkit-border-radius: 4px; 
-  -moz-border-radius: 4px; 
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
   border-radius: 4px;
   padding: .3em 1.5em;
   letter-spacing: .3px;
@@ -38,8 +38,8 @@
 
 .button-base {
   color: #fff;
-  text-transform: uppercase;
   background-color: $blue;
+  position: relative;
   &:hover {
     background-color: darken($blue, 10%);
     border: 1px solid darken($blue, 13%);
@@ -208,8 +208,8 @@ select {
 .tool-bar {
   position: absolute;
   background-color: lighten($lightest-grey, 7%);
-  -webkit-border-radius: 4px; 
-  -moz-border-radius: 4px; 
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
   border-radius: 4px;
   width: 12em;
   left: 3em;
@@ -240,12 +240,13 @@ select {
 
 .tool__item {
   border: 1px solid rgba(86, 216, 232, .3);
-  -webkit-border-radius: 4px; 
-  -moz-border-radius: 4px; 
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
   border-radius: 4px;
   display: inline-block;
   margin-right: .7em;
   margin-bottom: .3em;
+  position: relative;
   transition: all 0.3s ease 0s;
   -webkit-transition: all 0.3s;
   -moz-transition: all 0.3s;
@@ -311,4 +312,33 @@ select {
   &:before {
     background-color: $blue-existing;
   }
+}
+
+.help {
+  left: 50%;
+  overflow: visible;
+  position: absolute;
+  pointer-events: none;
+  text-align: center;
+  z-index: 999;
+}
+
+.help__top {
+  top: -3.5em;
+}
+
+.help__bottom {
+  bottom: -3.5em;
+}
+
+.help__in {
+  background-color: $dark-grey;
+  color: $white;
+  left: -50%;
+  min-width: 20px;
+  padding: .5em;
+  position: relative;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
 }

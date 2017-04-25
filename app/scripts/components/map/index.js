@@ -33,7 +33,10 @@ const noGl = (
 );
 const id = 'main-map-component';
 export const Map = React.createClass({
-  getInitialState: () => ({ selected: [] }),
+  getInitialState: () => ({
+    selected: [],
+    showHelp: false
+  }),
 
   initMap: function (el) {
     if (el && !this.map && App.glSupport) {
@@ -110,11 +113,17 @@ export const Map = React.createClass({
     return mode === 'direct_select' && lineString && selectedPoint;
   },
 
-  lineContinuationMode: function (options) {
+  lineContinuationMode: function () {
     const lineString = this.draw.getSelected().features[0];
     const selectedPoint = this.draw.getSelectedPoints().features[0];
-    this.props.dispatch(changeDrawMode(CONTINUE));
-    this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
+    if (selectedPoint) {
+      this.props.dispatch(changeDrawMode(CONTINUE));
+      this.draw.changeMode('draw_line_string', { featureId: lineString.id, from: selectedPoint });
+    }
+  },
+
+  newLineMode: function () {
+    this.draw.changeMode('draw_line_string');
   },
 
   splitMode: function (options) {
@@ -216,11 +225,27 @@ export const Map = React.createClass({
       // s
       case (83):
         if (ctrl) this.save();
+        else this.splitMode();
         break;
 
       // e
       case (69):
         this.expandMode();
+        break;
+
+      // c
+      case (67):
+        this.lineContinuationMode();
+        break;
+
+      // d
+      case (68):
+        this.newLineMode();
+        break;
+
+      // space bar
+      case (32):
+        this.setState({ showHelp: !this.state.showHelp });
         break;
 
       // del & backspace
@@ -453,11 +478,11 @@ export const Map = React.createClass({
                 </div>
               </li>
               <li>
-                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo</button>
-                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo</button>
+                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
+                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
               </li>
               <li>
-                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>Save Changes</button>
+                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
                 {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
                 {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
               </li>
@@ -465,13 +490,15 @@ export const Map = React.createClass({
           </div>
         </div>
         <div className='tool-bar'>
+
           <fieldset className='tools'>
             <legend>Tools</legend>
             <ul>
-              <li className='tool--line tool__item' onClick={() => this.draw.changeMode('draw_line_string')}>
+              <li className='tool--line tool__item' onClick={this.newLineMode}>
                 <a href="#">
                   <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
                 </a>
+                {this.help('top', 'd')}
               </li>
               <li
                 className={c('tool--line-add tool__item',
@@ -483,19 +510,23 @@ export const Map = React.createClass({
                 <a href="#">
                   <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
                 </a>
+                {this.help('top', 'c')}
               </li>
               <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
                 <a onClick={this.splitMode} href="#">
                   <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
                 </a>
+                {this.help('bottom', 's')}
               </li>
               <li className='tool--trash tool__item' onClick={this.delete}>
                 <a href="#">
                   <img alt='delete' src='../graphics/layout/icon-trash.svg' />
                 </a>
+                {this.help('bottom', 'del')}
               </li>
             </ul>
           </fieldset>
+
           <fieldset className='toggle'>
             <legend>Predicted Road Layers</legend>
             <ul>
@@ -536,6 +567,18 @@ export const Map = React.createClass({
               </li>
             </ul>
           </fieldset>
+        </div>
+      </div>
+    );
+  },
+
+  help: function (position, text) {
+    if (!this.state.showHelp) return null;
+    const outerClass = 'help help__' + position;
+    return (
+      <div className={outerClass}>
+        <div className='help__in'>
+          {text}
         </div>
       </div>
     );
