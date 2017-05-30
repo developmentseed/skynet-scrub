@@ -59,7 +59,10 @@ export const Map = React.createClass({
       // that we're calling some events programatically
       this.map.on('draw.create', (e) => this.handleCreate(e.features));
       this.map.on('draw.delete', (e) => this.handleDelete(e.features));
-      this.map.on('draw.update', (e) => this.handleUpdate(e.features));
+      this.map.on('draw.update', (e) => {
+        this.handleUpdate(e.features);
+        e.features.forEach(this.markAsEdited);
+      });
       this.map.on('draw.selectionchange', (e) => {
         // internal state used to track "previous state" of edited geometry
         this.setState({selected: e.features});
@@ -274,7 +277,6 @@ export const Map = React.createClass({
   },
 
   handleUpdate: function (features) {
-    features.forEach(this.markAsEdited);
     this.props.dispatch(updateSelection(features.map(f => {
       const oldFeature = this.state.selected.find(a => a.id === f.id);
       return { id: f.id, undo: oldFeature, redo: f };
@@ -324,6 +326,7 @@ export const Map = React.createClass({
   },
 
   markAsEdited: function (feature) {
+    console.log('marking as edited');
     if (feature.properties.status !== EDITED) {
       feature.properties.status = EDITED;
       this.draw.add(feature);
