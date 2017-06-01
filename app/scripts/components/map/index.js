@@ -515,73 +515,78 @@ export const Map = React.createClass({
             </div>
           </div>
         )}
+
         <div className='tool-bar'>
+          {uiDisabled ? <span /> : (
+            <fieldset className='tools'>
+              <legend>Tools</legend>
+              <ul>
+                <li className='tool--line tool__item' onClick={this.newLineMode}>
+                  <a href="#">
+                    <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
+                  </a>
+                  {this.help('top', 'd')}
+                </li>
+                <li
+                  className={c('tool--line-add tool__item',
+                  { disabled: !this.draw || (this.draw && !this.isLineContinuationValid() && this.props.draw.mode !== CONTINUE) },
+                  { active: this.props.draw.mode === CONTINUE }
+                  )}
+                  onClick={this.lineContinuationMode}
+                  >
+                  <a href="#">
+                    <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
+                  </a>
+                  {this.help('top', 'c')}
+                </li>
+                <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
+                  <a onClick={this.splitMode} href="#">
+                    <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
+                  </a>
+                  {this.help('bottom', 's')}
+                </li>
+                <li className='tool--trash tool__item' onClick={this.delete}>
+                  <a href="#">
+                    <img alt='delete' src='../graphics/layout/icon-trash.svg' />
+                  </a>
+                  {this.help('bottom', 'del')}
+                </li>
+              </ul>
+            </fieldset>
+          )}
 
-          <fieldset className='tools'>
-            <legend>Tools</legend>
-            <ul>
-              <li className='tool--line tool__item' onClick={this.newLineMode}>
-                <a href="#">
-                  <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
-                </a>
-                {this.help('top', 'd')}
-              </li>
-              <li
-                className={c('tool--line-add tool__item',
-                { disabled: !this.draw || (this.draw && !this.isLineContinuationValid() && this.props.draw.mode !== CONTINUE) },
-                { active: this.props.draw.mode === CONTINUE }
-                )}
-                onClick={this.lineContinuationMode}
-                >
-                <a href="#">
-                  <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
-                </a>
-                {this.help('top', 'c')}
-              </li>
-              <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
-                <a onClick={this.splitMode} href="#">
-                  <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
-                </a>
-                {this.help('bottom', 's')}
-              </li>
-              <li className='tool--trash tool__item' onClick={this.delete}>
-                <a href="#">
-                  <img alt='delete' src='../graphics/layout/icon-trash.svg' />
-                </a>
-                {this.help('bottom', 'del')}
-              </li>
-            </ul>
-          </fieldset>
+          {uiDisabled ? <span /> : (
+            <fieldset className='toggle'>
+              <legend>Predicted Road Layers</legend>
+              <ul>
+                <li className='toggle__item toggle__all'>
+                  <a className={c({showall: hidden.length >= 1})} href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description'>All Predicted</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(INCOMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line__item line--incomplete line-description'>Incomplete</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(EDITED) > -1})} href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description line__item line--progress'>In Progress</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(COMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description line__item line--complete'>Complete</span>
+                  </a>
+                </li>
+              </ul>
+            </fieldset>
+          )}
 
-          <fieldset className='toggle'>
-            <legend>Predicted Road Layers</legend>
-            <ul>
-              <li className='toggle__item toggle__all'>
-                <a className={c({showall: hidden.length >= 1})} href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>All Predicted</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(INCOMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line__item line--incomplete line-description'>Incomplete</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(EDITED) > -1})} href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description line__item line--progress'>In Progress</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(COMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description line__item line--complete'>Complete</span>
-                </a>
-              </li>
-            </ul>
-          </fieldset>
           <fieldset className='toggle'>
             <legend>Existing Road Network Layers</legend>
             <ul>
