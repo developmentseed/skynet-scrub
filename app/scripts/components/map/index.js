@@ -209,8 +209,8 @@ export const Map = React.createClass({
     });
 
     // toggle predictions layers when map mode changes from inactive to anything else
-    if ((nextProps.draw.mode === INACTIVE || this.props.draw.mode === INACTIVE)
-        && nextProps.draw.mode !== this.props.draw.mode) {
+    if ((nextProps.draw.mode === INACTIVE || this.props.draw.mode === INACTIVE) &&
+        nextProps.draw.mode !== this.props.draw.mode) {
       this.toggleVisibility('all');
     }
   },
@@ -475,37 +475,46 @@ export const Map = React.createClass({
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
     const hidden = this.props.draw.hidden;
+    const uiDisabled = this.props.draw.mode === INACTIVE;
     const showExistingRoads = this.props.map.showExistingRoads;
 
     return (
       <div className='map__container' ref={this.initMap} id={id}>
-        <div className='menubar'>
-          <div className='row'>
-            <ul>
-              <li className={c({ disabled: !selectedFeatures.length })}>
-                <label>Line Status</label>
-                <div className={c('select-wrapper')}>
-                  <select value={status || ''} onChange={this.setLineStatus}>
-                    {!selectedFeatures.length && <option value=''></option>}
-                    {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-                    <option value={INCOMPLETE}>Incomplete</option>
-                    <option value={EDITED}>In Progress</option>
-                    <option value={COMPLETE}>Complete</option>
-                  </select>
-                </div>
-              </li>
-              <li>
-                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
-                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
-              </li>
-              <li>
-                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
-                {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
-                {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
-              </li>
-            </ul>
+        {uiDisabled ? (
+          <div className='menubar menubar--disabled'>
+            <div className='row'>
+              <p>Zoom in to edit</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className='menubar'>
+            <div className='row'>
+              <ul>
+                <li className={c({ disabled: !selectedFeatures.length })}>
+                  <label>Line Status</label>
+                  <div className={c('select-wrapper')}>
+                    <select value={status || ''} onChange={this.setLineStatus}>
+                      {!selectedFeatures.length && <option value=''></option>}
+                      {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+                      <option value={INCOMPLETE}>Incomplete</option>
+                      <option value={EDITED}>In Progress</option>
+                      <option value={COMPLETE}>Complete</option>
+                    </select>
+                  </div>
+                </li>
+                <li>
+                  <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
+                  <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
+                </li>
+                <li>
+                  <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
+                  {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+                  {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
         <div className='tool-bar'>
 
           <fieldset className='tools'>

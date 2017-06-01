@@ -19,6 +19,12 @@
   }
 }
 
+.menubar--disabled p {
+  padding: 0.3em 0;
+  font-weight: $base-font-bold;
+  text-align: center;
+}
+
 .disabled {
   img { opacity: 0.45; }
   pointer-events: none;
@@ -48,7 +54,7 @@
 
 .menubar {
   .button-base {
-    padding: .3em 1.5em .25em;
+    padding: .3em 1.5em .15em;
   }
 }
 
