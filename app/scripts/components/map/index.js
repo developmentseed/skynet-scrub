@@ -207,6 +207,12 @@ export const Map = React.createClass({
         this.map.setFilter(hotLayer, [...baseFilter, ['!in', 'user_status'].concat(nextProps.draw.hidden)]);
       }
     });
+
+    // toggle predictions layers when map mode changes from inactive to anything else
+    if ((nextProps.draw.mode === INACTIVE || this.props.draw.mode === INACTIVE)
+        && nextProps.draw.mode !== this.props.draw.mode) {
+      this.toggleVisibility('all');
+    }
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
