@@ -12,7 +12,7 @@ import dissolve from 'geojson-linestring-dissolve';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
-import { environment, existingRoadsSource } from '../../config';
+import { environment, existingRoadsSource, minTileZoom, initialZoom } from '../../config';
 import App from '../../util/app';
 import mapboxgl from 'mapbox-gl';
 
@@ -24,7 +24,7 @@ import {
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
-import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE } from './utils/constants';
+import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE, INACTIVE } from './utils/constants';
 
 const noGl = (
   <div className='nogl'>
@@ -46,7 +46,7 @@ export const Map = React.createClass({
         container: el,
         scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 14
+        zoom: initialZoom
       });
       const draw = new MapboxDraw({
         styles: drawStyles,
@@ -93,6 +93,14 @@ export const Map = React.createClass({
       });
       this.map.on('moveend', (e) => {
         this.loadMapData(e);
+      });
+      this.map.on('zoomend', (e) => {
+        const zoom = e.target.getZoom();
+        if (zoom >= minTileZoom && this.props.draw.mode === INACTIVE) {
+          this.props.dispatch(changeDrawMode(null));
+        } else if (zoom < minTileZoom && this.props.draw.mode !== INACTIVE) {
+          this.props.dispatch(changeDrawMode(INACTIVE));
+        }
       });
       this.map.on('click', (e) => {
         switch (this.props.draw.mode) {
