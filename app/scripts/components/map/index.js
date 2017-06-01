@@ -212,6 +212,7 @@ export const Map = React.createClass({
     if ((nextProps.draw.mode === INACTIVE || this.props.draw.mode === INACTIVE) &&
         nextProps.draw.mode !== this.props.draw.mode) {
       this.toggleVisibility('all');
+      this.draw.changeMode('simple_select', { featureIds: [] });
     }
   },
 
