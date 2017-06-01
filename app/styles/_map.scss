@@ -19,10 +19,12 @@
   }
 }
 
-.menubar--disabled p {
-  padding: 0.3em 0;
-  font-weight: $base-font-bold;
+.menubar--disabled {
   text-align: center;
+}
+
+.menubar--disabled button {
+  display: inline-block;
 }
 
 .disabled {

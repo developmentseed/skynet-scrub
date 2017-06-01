@@ -483,7 +483,7 @@ export const Map = React.createClass({
         {uiDisabled ? (
           <div className='menubar menubar--disabled'>
             <div className='row'>
-              <p>Zoom in to edit</p>
+              <button className='button button-base' onClick={() => this.map.zoomTo(minTileZoom)}>Zoom to edit</button>
             </div>
           </div>
         ) : (
