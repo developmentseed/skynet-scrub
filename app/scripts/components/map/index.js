@@ -328,7 +328,7 @@ export const Map = React.createClass({
   },
 
   loadMapData: function (mapEvent) {
-    if (!mapEvent.target.getBounds) return;
+    if (!mapEvent.target.getBounds || this.props.draw.mode === INACTIVE) return;
     const coverTile = this.getCoverTile(
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
