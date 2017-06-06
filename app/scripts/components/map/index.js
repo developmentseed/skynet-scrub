@@ -287,7 +287,12 @@ export const Map = React.createClass({
     features.forEach(this.markAsEdited);
     // reset draw mode in case we were in CONTINUE; remove this after line
     // continuation doesn't fire a create event
-    this.props.dispatch(changeDrawMode(null));
+    const zoom = this.map.getZoom();
+    if (zoom < minTileZoom) {
+      this.props.dispatch(changeDrawMode(INACTIVE));
+    } else {
+      this.props.dispatch(changeDrawMode(null));
+    }
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
 
