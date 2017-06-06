@@ -1,9 +1,10 @@
 import { CHANGE_DRAW_MODE, TOGGLE_VISIBILITY } from '../actions';
-import { COMPLETE, INCOMPLETE, EDITED } from '../components/map/utils/constants';
+import { COMPLETE, INCOMPLETE, EDITED, INACTIVE } from '../components/map/utils/constants';
+import { initialZoom, minTileZoom } from '../config/';
 
 const initial = {
-  mode: null,
-  hidden: []
+  mode: initialZoom < minTileZoom ? INACTIVE : null,
+  hidden: initialZoom < minTileZoom ? [COMPLETE, INCOMPLETE, EDITED] : []
 };
 
 const draw = (state = initial, action) => {

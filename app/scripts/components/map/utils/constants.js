@@ -4,3 +4,4 @@ export const INCOMPLETE = 'incomplete';
 export const EDITED = 'in progress';
 export const MULTIPLE = 'multiple';
 export const CONTINUE = 'continue';
+export const INACTIVE = 'inactive';

@@ -12,7 +12,7 @@ import dissolve from 'geojson-linestring-dissolve';
 import { tiles } from 'tile-cover';
 import uniq from 'lodash.uniq';
 import { firstCoord, lastCoord } from '../../util/line';
-import { environment, existingRoadsSource } from '../../config';
+import { environment, existingRoadsSource, minTileZoom, initialZoom } from '../../config';
 import App from '../../util/app';
 import mapboxgl from 'mapbox-gl';
 
@@ -24,7 +24,7 @@ import {
   completeMapUpdate, changeDrawMode, toggleVisibility, toggleExistingRoads
 } from '../../actions';
 
-import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE } from './utils/constants';
+import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE, INACTIVE } from './utils/constants';
 
 // don't add any segment twice
 const added = new Set();
@@ -49,7 +49,7 @@ export const Map = React.createClass({
         container: el,
         scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 14
+        zoom: initialZoom
       });
       const draw = new MapboxDraw({
         styles: drawStyles,
@@ -96,6 +96,14 @@ export const Map = React.createClass({
       });
       this.map.on('moveend', (e) => {
         this.loadMapData(e);
+      });
+      this.map.on('zoomend', (e) => {
+        const zoom = e.target.getZoom();
+        if (zoom >= minTileZoom && this.props.draw.mode === INACTIVE) {
+          this.props.dispatch(changeDrawMode(null));
+        } else if (zoom < minTileZoom && this.props.draw.mode !== INACTIVE) {
+          this.props.dispatch(changeDrawMode(INACTIVE));
+        }
       });
       this.map.on('click', (e) => {
         switch (this.props.draw.mode) {
@@ -203,6 +211,13 @@ export const Map = React.createClass({
         this.map.setFilter(hotLayer, [...baseFilter, ['!in', 'user_status'].concat(nextProps.draw.hidden)]);
       }
     });
+
+    // toggle predictions layers when map mode changes from inactive to anything else
+    if ((nextProps.draw.mode === INACTIVE || this.props.draw.mode === INACTIVE) &&
+        nextProps.draw.mode !== this.props.draw.mode) {
+      this.toggleVisibility('all');
+      this.draw.changeMode('simple_select', { featureIds: [] });
+    }
   },
 
   featureUpdate: function (feature, undoOrRedoKey) {
@@ -276,7 +291,12 @@ export const Map = React.createClass({
     features.forEach(this.markAsEdited);
     // reset draw mode in case we were in CONTINUE; remove this after line
     // continuation doesn't fire a create event
-    this.props.dispatch(changeDrawMode(null));
+    const zoom = this.map.getZoom();
+    if (zoom < minTileZoom) {
+      this.props.dispatch(changeDrawMode(INACTIVE));
+    } else {
+      this.props.dispatch(changeDrawMode(null));
+    }
     this.props.dispatch(updateSelection(features.map(createRedo)));
   },
 
@@ -317,7 +337,7 @@ export const Map = React.createClass({
   },
 
   loadMapData: function (mapEvent) {
-    if (!mapEvent.target.getBounds) return;
+    if (!mapEvent.target.getBounds || this.props.draw.mode === INACTIVE) return;
     const coverTile = this.getCoverTile(
       mapEvent.target.getBounds().toArray(),
       Math.floor(mapEvent.target.getZoom())
@@ -465,104 +485,118 @@ export const Map = React.createClass({
     const status = !statuses.length ? null
       : statuses.length > 1 ? MULTIPLE : statuses[0];
     const hidden = this.props.draw.hidden;
+    const uiDisabled = this.props.draw.mode === INACTIVE;
     const showExistingRoads = this.props.map.showExistingRoads;
 
     return (
       <div className='map__container' ref={this.initMap} id={id}>
-        <div className='menubar'>
-          <div className='row'>
-            <ul>
-              <li className={c({ disabled: !selectedFeatures.length })}>
-                <label>Line Status</label>
-                <div className={c('select-wrapper')}>
-                  <select value={status || ''} onChange={this.setLineStatus}>
-                    {!selectedFeatures.length && <option value=''></option>}
-                    {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
-                    <option value={INCOMPLETE}>Incomplete</option>
-                    <option value={EDITED}>In Progress</option>
-                    <option value={COMPLETE}>Complete</option>
-                  </select>
-                </div>
-              </li>
-              <li>
-                <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
-                <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
-              </li>
-              <li>
-                <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
-                {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
-                {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
-              </li>
-            </ul>
+        {uiDisabled ? (
+          <div className='menubar menubar--disabled'>
+            <div className='row'>
+              <button className='button button-base' onClick={() => this.map.zoomTo(minTileZoom)}>Zoom to edit</button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className='menubar'>
+            <div className='row'>
+              <ul>
+                <li className={c({ disabled: !selectedFeatures.length })}>
+                  <label>Line Status</label>
+                  <div className={c('select-wrapper')}>
+                    <select value={status || ''} onChange={this.setLineStatus}>
+                      {!selectedFeatures.length && <option value=''></option>}
+                      {status === MULTIPLE && <option value={MULTIPLE}>Multiple</option>}
+                      <option value={INCOMPLETE}>Incomplete</option>
+                      <option value={EDITED}>In Progress</option>
+                      <option value={COMPLETE}>Complete</option>
+                    </select>
+                  </div>
+                </li>
+                <li>
+                  <button className={c({disabled: !past.length}, 'button button-undo button--outline')} onClick={this.undo}>Undo{this.help('bottom', 'ctrl+z')}</button>
+                  <button className={c({disabled: !future.length}, 'button button-redo button--outline')} onClick={this.redo}>Redo{this.help('bottom', 'ctrl+shift+z')}</button>
+                </li>
+                <li>
+                  <button className={c({disabled: isSynced}, 'button button-base')} onClick={this.save}>SAVE CHANGES{this.help('bottom', 'ctrl+s')}</button>
+                  {save.inflight ? <span style={{float: 'right'}}>Saving...</span> : null}
+                  {save.success ? <span style={{float: 'right'}}>Success!</span> : null}
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         <div className='tool-bar'>
+          {uiDisabled ? <span /> : (
+            <fieldset className='tools'>
+              <legend>Tools</legend>
+              <ul>
+                <li className='tool--line tool__item' onClick={this.newLineMode}>
+                  <a href="#">
+                    <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
+                  </a>
+                  {this.help('top', 'd')}
+                </li>
+                <li
+                  className={c('tool--line-add tool__item',
+                  { disabled: !this.draw || (this.draw && !this.isLineContinuationValid() && this.props.draw.mode !== CONTINUE) },
+                  { active: this.props.draw.mode === CONTINUE }
+                  )}
+                  onClick={this.lineContinuationMode}
+                  >
+                  <a href="#">
+                    <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
+                  </a>
+                  {this.help('top', 'c')}
+                </li>
+                <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
+                  <a onClick={this.splitMode} href="#">
+                    <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
+                  </a>
+                  {this.help('bottom', 's')}
+                </li>
+                <li className='tool--trash tool__item' onClick={this.delete}>
+                  <a href="#">
+                    <img alt='delete' src='../graphics/layout/icon-trash.svg' />
+                  </a>
+                  {this.help('bottom', 'del')}
+                </li>
+              </ul>
+            </fieldset>
+          )}
 
-          <fieldset className='tools'>
-            <legend>Tools</legend>
-            <ul>
-              <li className='tool--line tool__item' onClick={this.newLineMode}>
-                <a href="#">
-                  <img alt='Add Line' src='../graphics/layout/icon-line.svg' />
-                </a>
-                {this.help('top', 'd')}
-              </li>
-              <li
-                className={c('tool--line-add tool__item',
-                { disabled: !this.draw || (this.draw && !this.isLineContinuationValid() && this.props.draw.mode !== CONTINUE) },
-                { active: this.props.draw.mode === CONTINUE }
-                )}
-                onClick={this.lineContinuationMode}
-                >
-                <a href="#">
-                  <img alt='Add Point' src='../graphics/layout/icon-addline.svg' />
-                </a>
-                {this.help('top', 'c')}
-              </li>
-              <li className={c('tool--cut tool__item', {active: this.props.draw.mode === SPLIT})}>
-                <a onClick={this.splitMode} href="#">
-                  <img alt='Split Line' src='../graphics/layout/icon-cut.svg' />
-                </a>
-                {this.help('bottom', 's')}
-              </li>
-              <li className='tool--trash tool__item' onClick={this.delete}>
-                <a href="#">
-                  <img alt='delete' src='../graphics/layout/icon-trash.svg' />
-                </a>
-                {this.help('bottom', 'del')}
-              </li>
-            </ul>
-          </fieldset>
+          {uiDisabled ? <span /> : (
+            <fieldset className='toggle'>
+              <legend>Predicted Road Layers</legend>
+              <ul>
+                <li className='toggle__item toggle__all'>
+                  <a className={c({showall: hidden.length >= 1})} href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description'>All Predicted</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(INCOMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line__item line--incomplete line-description'>Incomplete</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(EDITED) > -1})} href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description line__item line--progress'>In Progress</span>
+                  </a>
+                </li>
+                <li className='toggle__item'>
+                  <a className={c({showall: hidden.indexOf(COMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
+                    <icon className='visibility'><span>Hide/Show</span></icon>
+                    <span className='line-description line__item line--complete'>Complete</span>
+                  </a>
+                </li>
+              </ul>
+            </fieldset>
+          )}
 
-          <fieldset className='toggle'>
-            <legend>Predicted Road Layers</legend>
-            <ul>
-              <li className='toggle__item toggle__all'>
-                <a className={c({showall: hidden.length >= 1})} href="#" onClick={this.toggleVisibility.bind(this, 'all')}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description'>All Predicted</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(INCOMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, INCOMPLETE)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line__item line--incomplete line-description'>Incomplete</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(EDITED) > -1})} href="#" onClick={this.toggleVisibility.bind(this, EDITED)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description line__item line--progress'>In Progress</span>
-                </a>
-              </li>
-              <li className='toggle__item'>
-                <a className={c({showall: hidden.indexOf(COMPLETE) > -1})} href="#" onClick={this.toggleVisibility.bind(this, COMPLETE)}>
-                  <icon className='visibility'><span>Hide/Show</span></icon>
-                  <span className='line-description line__item line--complete'>Complete</span>
-                </a>
-              </li>
-            </ul>
-          </fieldset>
           <fieldset className='toggle'>
             <legend>Existing Road Network Layers</legend>
             <ul>
