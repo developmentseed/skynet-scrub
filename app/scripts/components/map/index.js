@@ -26,6 +26,9 @@ import {
 
 import { SPLIT, COMPLETE, INCOMPLETE, EDITED, MULTIPLE, CONTINUE } from './utils/constants';
 
+// don't add any segment twice
+const added = new Set();
+
 const noGl = (
   <div className='nogl'>
     <p>Sorry, but your browser does not support GL.</p>
@@ -167,11 +170,12 @@ export const Map = React.createClass({
     if (nextProps.map.tempStore) {
       nextProps.map.tempStore.forEach(feature => {
         // only add, no deletes or updates
-        if (!this.draw.get(feature.properties.id)) {
+        if (!added.has(feature.properties.id)) {
           const toAdd = Object.assign({}, feature, { id: feature.properties.id });
           if (!toAdd.properties.hasOwnProperty('status')) {
             toAdd.properties.status = 'incomplete';
           }
+          added.add(feature.properties.id);
           this.draw.add(toAdd);
         }
       });
