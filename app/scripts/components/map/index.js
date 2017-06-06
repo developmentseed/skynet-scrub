@@ -90,7 +90,7 @@ export const Map = React.createClass({
             'line-width': 2
           },
           'source-layer': 'network'
-        });
+        }, 'gl-draw-line-inactive.cold');
 
         this.loadMapData(e);
       });
