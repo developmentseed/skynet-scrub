@@ -77,6 +77,22 @@ export const Map = React.createClass({
       });
 
       this.map.on('load', (e) => {
+        this.map.addSource('grid', {
+          type: 'vector',
+          url: 'mapbox://openroads.d9d310da'
+        });
+        this.map.addLayer({
+          id: '1km-grid',
+          source: 'grid',
+          type: 'line',
+          paint: {
+            'line-color': '#E8E8E8',
+            'line-width': 2,
+            'line-opacity': 0.3,
+            'line-dasharray': [4, 2]
+          },
+          'source-layer': '1kmgrid'
+        });
         this.map.addSource('network', {
           type: 'vector',
           tiles: [existingRoadsSource]
