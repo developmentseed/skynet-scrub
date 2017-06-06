@@ -47,10 +47,11 @@ export const Map = React.createClass({
       this.map = App.map = new mapboxgl.Map({
         center: [105.66, 20],
         container: el,
-        scrollWheelZoom: false,
         style: 'mapbox://styles/mapbox/satellite-v9',
         zoom: initialZoom
       });
+      const nav = new mapboxgl.NavigationControl();
+      this.map.addControl(nav, 'bottom-right');
       const draw = new MapboxDraw({
         styles: drawStyles,
         displayControlsDefault: false,
