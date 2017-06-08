@@ -92,7 +92,22 @@ export const Map = React.createClass({
             'line-opacity': 0.3,
             'line-dasharray': [4, 2]
           },
+          minzoom: 12,
           'source-layer': '1kmgrid'
+        });
+        this.map.addLayer({
+          id: '10km-grid',
+          source: 'grid',
+          type: 'line',
+          paint: {
+            'line-color': '#E8E8E8',
+            'line-width': 2,
+            'line-opacity': 0.4,
+            'line-dasharray': [3, 3]
+          },
+          maxzoom: 12,
+          minzoom: 8,
+          'source-layer': '10kmgrid'
         });
         this.map.addSource('network', {
           type: 'vector',
